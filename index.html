@@ -1,0 +1,2535 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+   <title>یادگیری زبان عربی</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap');
+
+    :root {
+      --sky-top: #98dce8;
+      --sky-bottom: #a6e3ee;
+      --card-bg: rgba(16, 30, 48, 0.94);
+      --question-card-bg: rgba(14, 28, 46, 0.56);
+      --option-bg: rgba(16, 34, 56, 0.72);
+      --option-hover: rgba(28, 54, 84, 0.88);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #98dce8;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+      font-family: 'Vazirmatn', Tahoma, Arial, sans-serif;
+      color: #ffffff;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .app-shell {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      max-width: 500px;
+      background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.16);
+    }
+
+    #snowCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    #trailCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    .scenery-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .scenery-svg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 25%;
+      min-height: 105px;
+      max-height: 230px;
+      display: block;
+    }
+
+    .ui-layer {
+      position: relative;
+      z-index: 20;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: max(6px, env(safe-area-inset-top)) clamp(8px, 2.5vw, 14px) max(3px, env(safe-area-inset-bottom));
+      gap: clamp(4px, 1vh, 8px);
+    }
+
+    .hud-bar {
+      width: 100%;
+      background: rgba(18, 28, 40, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 11px;
+      padding: clamp(4px, 0.9vh, 6px) 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 4px;
+      font-size: clamp(10.5px, 2.8vw, 13px);
+      flex-shrink: 0;
+    }
+
+    .hud-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .hud-player {
+      background: rgba(214, 40, 40, 0.4);
+      border: 1px solid rgba(255, 117, 117, 0.55);
+      color: #ffd6d6;
+    }
+
+    .hud-progress {
+      background: rgba(255, 255, 255, 0.16);
+      color: #ffffff;
+    }
+
+    .sound-toggle-btn {
+      background: rgba(255, 255, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      color: #ffffff;
+      border-radius: 8px;
+      width: 28px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .archers-stage {
+      position: relative;
+      width: 100%;
+      margin-top: clamp(2px, 0.8vh, 10px);
+      height: clamp(88px, 16.5vh, 145px);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 0 4px;
+      direction: ltr;
+      pointer-events: none;
+      flex-shrink: 0;
+    }
+
+    .archer-unit {
+      position: relative;
+      width: clamp(72px, 20vw, 106px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    @keyframes gentleFloat {
+      0%, 100% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(0, -12px, 0); }
+    }
+
+    .float-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      will-change: transform;
+      animation: gentleFloat 6.4s ease-in-out infinite;
+    }
+
+    .float-wrapper.float-delay {
+      animation-delay: -3.2s;
+    }
+
+    @keyframes fallDownEnemy {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      22% {
+        transform: translate3d(-10px, 14px, 0) rotate(-18deg);
+        opacity: 0.96;
+      }
+      100% {
+        transform: translate3d(-26px, 360px, 0) rotate(-68deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes fallDownPlayer {
+      0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 1;
+      }
+      22% {
+        transform: translate3d(10px, 14px, 0) rotate(18deg);
+        opacity: 0.96;
+      }
+      100% {
+        transform: translate3d(26px, 360px, 0) rotate(68deg);
+        opacity: 0;
+      }
+    }
+
+    .archer-fall-enemy {
+      animation: fallDownEnemy 1.75s cubic-bezier(0.32, 0, 0.85, 0.45) forwards;
+    }
+
+    .archer-fall-player {
+      animation: fallDownPlayer 1.75s cubic-bezier(0.32, 0, 0.85, 0.45) forwards;
+    }
+
+    .archer-badge {
+      font-size: clamp(9.5px, 2.5vw, 11.5px);
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 999px;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      direction: rtl;
+    }
+
+    .badge-blue {
+      background: #0077b6;
+      color: #fff;
+      border: 1.5px solid #90e0ef;
+    }
+
+    .badge-red {
+      background: #d62828;
+      color: #fff;
+      border: 1.5px solid #ffccd5;
+    }
+
+    .archer-svg {
+      width: clamp(62px, min(18vw, 11vh), 94px);
+      height: clamp(64px, min(18.5vw, 11.5vh), 98px);
+      overflow: visible;
+    }
+
+    .hp-wrapper {
+      width: clamp(64px, 18.5vw, 96px);
+      margin-top: 2px;
+      background: rgba(17, 22, 29, 0.94);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      border-radius: 999px;
+      padding: 2px;
+      direction: ltr;
+    }
+
+    .hp-track {
+      position: relative;
+      width: 100%;
+      height: clamp(6px, 1vh, 9px);
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .hp-track::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        90deg,
+        transparent 0%,
+        transparent calc(6.6667% - 1px),
+        rgba(17, 22, 29, 0.7) calc(6.6667% - 1px),
+        rgba(17, 22, 29, 0.7) 6.6667%
+      );
+      pointer-events: none;
+    }
+
+    .hp-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #2ecc71, #27ae60);
+      border-radius: 999px;
+      transition: width 0.38s ease-out, background 0.3s ease;
+    }
+
+    .hp-fill.hp-medium {
+      background: linear-gradient(90deg, #f1c40f, #f39c12);
+    }
+
+    .hp-fill.hp-low {
+      background: linear-gradient(90deg, #e74c3c, #c0392b);
+    }
+
+    @keyframes hitShake {
+      0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+      25% { transform: translate3d(-5px, -2px, 0) rotate(-4deg); }
+      50% { transform: translate3d(5px, 2px, 0) rotate(4deg); }
+      75% { transform: translate3d(-3px, -1px, 0) rotate(-2deg); }
+    }
+
+    .archer-hit {
+      animation: hitShake 0.4s ease-in-out;
+    }
+
+    @keyframes bowRecoilRight {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.06) translateX(-3px); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bowRecoilLeft {
+      0% { transform: scale(1); }
+      35% { transform: scale(1.06) translateX(3px); }
+      100% { transform: scale(1); }
+    }
+
+    .shoot-right {
+      animation: bowRecoilRight 0.26s ease-out;
+    }
+
+    .shoot-left {
+      animation: bowRecoilLeft 0.26s ease-out;
+    }
+
+    .main-area {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      padding-bottom: clamp(16px, 3.5vh, 42px);
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      position: relative;
+      z-index: 30;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeIn 0.24s ease;
+    }
+
+    #endScreen.active {
+      max-height: 100%;
+      overflow-y: auto;
+      padding: 4px 2px 10px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-box {
+      width: 94%;
+      max-width: 400px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      border-radius: 16px;
+      padding: clamp(12px, 2.4vh, 20px) clamp(12px, 3.5vw, 16px);
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+    }
+
+    .game-title {
+      font-size: clamp(18px, 4.8vw, 25px);
+      font-weight: 900;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .rules-list {
+      background: rgba(255, 255, 255, 0.09);
+      border-radius: 11px;
+      padding: clamp(8px, 1.6vh, 11px) 10px;
+      margin: clamp(8px, 1.8vh, 14px) 0 clamp(10px, 2vh, 16px);
+      text-align: right;
+      font-size: clamp(11.5px, 3.1vw, 13.5px);
+      line-height: 1.65;
+      color: #eef8fc;
+    }
+
+    .rules-list div {
+      margin-bottom: 4px;
+    }
+
+    .primary-btn {
+      position: relative;
+      z-index: 50;
+      background: linear-gradient(135deg, #e63946, #b51724);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.38);
+      padding: clamp(9px, 1.8vh, 12px) clamp(20px, 5vw, 26px);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: clamp(13.5px, 3.6vw, 16px);
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(214, 40, 40, 0.4);
+      transition: transform 0.14s ease;
+    }
+
+    .primary-btn:active {
+      transform: scale(0.97);
+    }
+
+    .question-card {
+      width: 92%;
+      max-width: 380px;
+      margin: 0 auto;
+      background: var(--question-card-bg);
+      border: 1.5px solid rgba(255, 255, 255, 0.42);
+      border-radius: 15px;
+      padding: clamp(8px, 1.5vh, 12px) clamp(8px, 2.5vw, 12px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+      direction: rtl;
+    }
+
+    .question-text {
+      font-size: clamp(14.5px, 4.1vw, 20px);
+      font-weight: 800;
+      color: #ffffff;
+      text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+      background: rgba(12, 24, 40, 0.52);
+      border: 1.5px solid rgba(255, 255, 255, 0.5);
+      padding: clamp(7px, 1.4vh, 11px) 8px;
+      border-radius: 10px;
+      margin-bottom: clamp(7px, 1.3vh, 10px);
+      direction: rtl;
+      unicode-bidi: isolate;
+      text-align: center;
+      line-height: 1.5;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+
+    .question-text.long-q {
+      font-size: clamp(13px, 3.6vw, 17px);
+      line-height: 1.45;
+    }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(6px, 1.2vh, 9px);
+      direction: rtl;
+    }
+
+    .options-grid.single-col {
+      grid-template-columns: 1fr;
+      gap: clamp(5px, 1vh, 7px);
+    }
+
+    .option-btn {
+      background: var(--option-bg);
+      color: #a7f3d0;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+      border: 1.5px solid rgba(167, 243, 208, 0.45);
+      padding: clamp(7px, 1.3vh, 10px) 8px;
+      min-height: clamp(38px, 5.5vh, 44px);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: clamp(13.5px, 3.8vw, 18px);
+      font-weight: 800;
+      line-height: 1.4;
+      direction: rtl;
+      unicode-bidi: isolate;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      transition: transform 0.12s ease, background-color 0.15s ease;
+    }
+
+    .options-grid.single-col .option-btn {
+      font-size: clamp(12.5px, 3.4vw, 15.5px);
+      min-height: clamp(34px, 4.8vh, 40px);
+      padding: clamp(6px, 1vh, 8px) 10px;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      background: var(--option-hover);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-btn.correct-ans {
+      background: #1b8a4b !important;
+      border-color: #69f0ae !important;
+      color: #ffffff !important;
+    }
+
+    .option-btn.wrong-ans {
+      background: #c1121f !important;
+      border-color: #ff8fa3 !important;
+      color: #ffffff !important;
+    }
+
+    .feedback-banner {
+      margin-top: clamp(6px, 1.1vh, 9px);
+      font-size: clamp(11px, 2.8vw, 12.5px);
+      font-weight: 700;
+      border-radius: 8px;
+      padding: 5px 8px;
+      display: none;
+      line-height: 1.45;
+      text-align: center;
+      direction: rtl;
+    }
+
+    .feedback-banner.show {
+      display: block;
+    }
+
+    .feedback-ok {
+      background: rgba(27, 138, 75, 0.72);
+      color: #d1fae5;
+      border: 1px solid rgba(105, 240, 174, 0.55);
+    }
+
+    .feedback-err {
+      background: rgba(193, 18, 31, 0.72);
+      color: #ffe4e6;
+      border: 1px solid rgba(255, 143, 163, 0.55);
+    }
+
+    .flying-arrow {
+      position: fixed;
+      z-index: 999;
+      pointer-events: none;
+      transform-origin: center center;
+      will-change: left, top, transform;
+    }
+
+    .impact-spark {
+      position: fixed;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .floating-score {
+      position: fixed;
+      z-index: 1001;
+      font-size: clamp(12px, 3.2vw, 14.5px);
+      font-weight: 900;
+      pointer-events: none;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+      animation: floatUp 0.9s ease-out forwards;
+      white-space: nowrap;
+      direction: rtl;
+    }
+
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translate3d(0, 0, 0) scale(0.88); }
+      50% { opacity: 1; transform: translate3d(0, -16px, 0) scale(1.04); }
+      100% { opacity: 0; transform: translate3d(0, -30px, 0) scale(1); }
+    }
+
+    .end-summary {
+      width: 94%;
+      margin: 0 auto 10px;
+      background: var(--card-bg);
+      border: 1.5px solid rgba(255, 255, 255, 0.28);
+      border-radius: 16px;
+      padding: 14px 12px;
+      text-align: center;
+      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+    }
+
+    .score-grid {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 10px 0;
+    }
+
+    .score-pill {
+      padding: 6px 11px;
+      border-radius: 9px;
+      font-weight: 800;
+      font-size: clamp(11.5px, 3vw, 13px);
+    }
+
+    .end-actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      direction: rtl;
+    }
+
+    .analysis-list {
+      width: 94%;
+      margin: 0 auto;
+      text-align: right;
+    }
+
+    .analysis-item {
+      background: rgba(255, 255, 255, 0.96);
+      color: #161d26;
+      border-radius: 11px;
+      padding: 9px 11px;
+      margin-bottom: 8px;
+      font-size: clamp(12px, 3vw, 13px);
+      line-height: 1.6;
+      border-right: 5px solid #1b8a4b;
+    }
+
+    .analysis-item.is-wrong {
+      border-right-color: #c1121f;
+    }
+
+    footer {
+      text-align: center;
+      padding: 0 4px 2px;
+      margin-top: auto;
+      font-size: clamp(10px, 2.55vw, 11.8px);
+      position: relative;
+      z-index: 25;
+      flex-shrink: 0;
+    }
+
+    .footer-badge {
+      display: inline-block;
+      max-width: 100%;
+      background: rgba(15, 20, 30, 0.92);
+      color: #fde047;
+      font-weight: 800;
+      padding: 3px 12px;
+      border-radius: 999px;
+      border: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+        .submit-result-box {
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      direction: rtl;
+    }
+
+    .student-name-input {
+      width: 100%;
+      max-width: 280px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      outline: none;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+
+    .student-name-input::placeholder {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .student-name-input:focus,
+    .student-select:focus {
+      border-color: #38bdf8;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    .student-class-row {
+      width: 100%;
+      max-width: 280px;
+      display: flex;
+      gap: 6px;
+      direction: rtl;
+    }
+
+    .student-class-row .student-select {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+      background: rgba(16, 34, 56, 0.92);
+      color: #ffffff;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      text-align: center;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .student-class-row .student-select option {
+      background: #102238;
+      color: #ffffff;
+    }
+
+    .submit-result-btn {
+      background: linear-gradient(135deg, #16a34a, #15803d);
+      color: #ffffff;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
+      transition: transform 0.14s ease, opacity 0.2s ease;
+    }
+
+    .submit-result-btn:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .submit-result-btn:disabled {
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    .submit-status-msg {
+      font-size: 12px;
+      font-weight: 700;
+      min-height: 18px;
+      color: #fde047;
+    }
+
+    @media (max-height: 580px) {
+      .archers-stage {
+        height: 76px;
+        margin-top: 0;
+      }
+      .archer-svg {
+        width: 54px;
+        height: 56px;
+      }
+      .archer-badge {
+        display: none;
+      }
+      .main-area {
+        align-items: flex-start;
+        padding-top: 4px;
+        padding-bottom: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <canvas id="snowCanvas" aria-hidden="true"></canvas>
+    <canvas id="trailCanvas" aria-hidden="true"></canvas>
+
+    <div class="scenery-layer" aria-hidden="true">
+      <svg class="scenery-svg" viewBox="0 0 720 320" preserveAspectRatio="none">
+        <polygon points="-20,255 85,145 195,255" fill="#9bc7d9" />
+        <polygon points="150,255 255,155 365,255" fill="#9bc7d9" />
+        <polygon points="270,255 360,150 455,255" fill="#9bc7d9" />
+
+        <polygon points="-40,255 35,155 165,255" fill="#7fa8bd" />
+        <polygon points="340,255 475,115 615,255" fill="#7fa8bd" />
+        <polygon points="480,255 635,95 760,255" fill="#7fa8bd" />
+
+        <g fill="#5b8ba3">
+          <polygon points="38,140 16,188 28,188 10,225 25,225 4,255 72,255 51,225 66,225 48,188 60,188" />
+          <polygon points="82,175 66,215 76,215 60,255 104,255 88,215 98,215" />
+        </g>
+
+        <g fill="#5b8ba3">
+          <polygon points="212,155 190,200 202,200 184,235 198,235 178,255 246,255 226,235 240,235 222,200 234,200" />
+          <polygon points="275,158 256,205 266,205 248,255 302,255 284,205 294,205" />
+        </g>
+
+        <g fill="#5b8ba3">
+          <polygon points="632,150 612,200 622,200 604,255 660,255 642,200 652,200" />
+          <polygon points="682,162 666,208 675,208 658,255 706,255 689,208 698,208" />
+        </g>
+
+        <rect x="0" y="255" width="720" height="65" fill="#151a26" />
+        <g fill="#202838" opacity="0.8">
+          <rect x="35" y="272" width="18" height="7" rx="3" />
+          <rect x="120" y="294" width="22" height="8" rx="3" />
+          <rect x="215" y="276" width="16" height="7" rx="3" />
+          <rect x="310" y="296" width="20" height="8" rx="3" />
+          <rect x="415" y="274" width="18" height="7" rx="3" />
+          <rect x="505" y="292" width="22" height="8" rx="3" />
+          <rect x="605" y="275" width="18" height="7" rx="3" />
+          <rect x="670" y="295" width="20" height="8" rx="3" />
+        </g>
+
+        <path d="M0,251 L720,251 L720,261 L692,261 Q687,268 682,261 L630,261 Q624,270 618,261 L550,261 Q545,267 540,261 L465,261 Q458,271 451,261 L380,261 Q375,267 370,261 L295,261 Q288,270 281,261 L210,261 Q205,267 200,261 L135,261 Q128,271 121,261 L58,261 Q53,267 48,261 L0,261 Z" fill="#ffffff" />
+      </svg>
+    </div>
+
+    <div class="ui-layer">
+      <header style="width: 100%; flex-shrink: 0;">
+        <div class="hud-bar" id="hudBar">
+          <div class="hud-pill hud-player">
+            <span>🏹 شما:</span>
+            <span id="playerScoreText">۰ امتیاز</span>
+          </div>
+          <div class="hud-pill hud-progress" id="progressText">آماده نبرد</div>
+          <button type="button" id="soundToggleBtn" class="sound-toggle-btn" onclick="toggleSound()" title="قطع/وصل صدا" aria-label="قطع یا وصل صدا">🔊</button>
+        </div>
+
+        <div class="archers-stage">
+          <div class="float-wrapper float-delay">
+            <div class="archer-unit" id="leftArcherBox">
+              <div class="archer-badge badge-blue">حریف</div>
+              <svg class="archer-svg" id="leftArcherSvg" viewBox="0 0 110 115">
+                <path d="M16,102 L94,102 L88,112 L22,112 Z" fill="#151a26" stroke="#0d1117" stroke-width="1.5" />
+                <path d="M13,96 Q55,93 97,96 L97,104 L83,104 Q79,109 75,104 L57,104 Q53,110 49,104 L31,104 Q27,108 23,104 L13,104 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+
+                <circle cx="48" cy="39" r="10" fill="#11161d" />
+                <line x1="48" y1="49" x2="48" y2="74" stroke="#11161d" stroke-width="6.5" stroke-linecap="round" />
+                <polyline points="48,74 41,86 37,96" fill="none" stroke="#11161d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline points="48,74 56,86 61,96" fill="none" stroke="#11161d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+
+                <circle id="leftTargetAnchor" cx="48" cy="58" r="1" fill="transparent" />
+
+                <g transform="rotate(-14 55 52)">
+                  <line x1="48" y1="53" x2="73" y2="53" stroke="#11161d" stroke-width="5.5" stroke-linecap="round" />
+                  <polyline points="48,53 37,57 44,53" fill="none" stroke="#11161d" stroke-width="5" stroke-linecap="round" />
+
+                  <path d="M64,19 Q89,53 64,87" fill="none" stroke="#0284c7" stroke-width="5" stroke-linecap="round" />
+                  <path d="M65,22 Q85,53 65,84" fill="none" stroke="#7dd3fc" stroke-width="1.8" stroke-linecap="round" />
+                  <polyline points="64,19 43,53 64,87" fill="none" stroke="#1e293b" stroke-width="1.5" />
+
+                  <g id="leftReadyArrow">
+                    <line x1="43" y1="53" x2="89" y2="53" stroke="#0284c7" stroke-width="3" stroke-linecap="round" />
+                    <polygon points="95,53 84,48 86,53 84,58" fill="#38bdf8" />
+                    <polygon points="43,53 37,49 40,53 37,57" fill="#7dd3fc" />
+                    <circle id="leftBowAnchor" cx="68" cy="53" r="1" fill="transparent" />
+                  </g>
+                </g>
+              </svg>
+              <div class="hp-wrapper" aria-label="سلامت حریف">
+                <div class="hp-track">
+                  <div class="hp-fill" id="leftHpBar" style="width: 100%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="float-wrapper">
+            <div class="archer-unit" id="rightArcherBox">
+              <div class="archer-badge badge-red">شما</div>
+              <svg class="archer-svg" id="rightArcherSvg" viewBox="0 0 110 115">
+                <path d="M16,102 L94,102 L88,112 L22,112 Z" fill="#151a26" stroke="#0d1117" stroke-width="1.5" />
+                <path d="M13,96 Q55,93 97,96 L97,104 L83,104 Q79,109 75,104 L57,104 Q53,110 49,104 L31,104 Q27,108 23,104 L13,104 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
+
+                <circle cx="62" cy="39" r="10" fill="#11161d" />
+                <line x1="62" y1="49" x2="62" y2="74" stroke="#11161d" stroke-width="6.5" stroke-linecap="round" />
+                <polyline points="62,74 54,86 49,96" fill="none" stroke="#11161d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+                <polyline points="62,74 69,86 73,96" fill="none" stroke="#11161d" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+
+                <circle id="rightTargetAnchor" cx="62" cy="58" r="1" fill="transparent" />
+
+                <g transform="rotate(14 55 52)">
+                  <line x1="62" y1="53" x2="37" y2="53" stroke="#11161d" stroke-width="5.5" stroke-linecap="round" />
+                  <polyline points="62,53 73,57 66,53" fill="none" stroke="#11161d" stroke-width="5" stroke-linecap="round" />
+
+                  <path d="M46,19 Q21,53 46,87" fill="none" stroke="#dc2626" stroke-width="5" stroke-linecap="round" />
+                  <path d="M45,22 Q25,53 45,84" fill="none" stroke="#fca5a5" stroke-width="1.8" stroke-linecap="round" />
+                  <polyline points="46,19 67,53 46,87" fill="none" stroke="#1e293b" stroke-width="1.5" />
+
+                  <g id="rightReadyArrow">
+                    <line x1="67" y1="53" x2="21" y2="53" stroke="#dc2626" stroke-width="3" stroke-linecap="round" />
+                    <polygon points="15,53 26,48 24,53 26,58" fill="#ef4444" />
+                    <polygon points="67,53 73,49 70,53 73,57" fill="#fca5a5" />
+                    <circle id="rightBowAnchor" cx="42" cy="53" r="1" fill="transparent" />
+                  </g>
+                </g>
+              </svg>
+              <div class="hp-wrapper" aria-label="سلامت شما">
+                <div class="hp-track">
+                  <div class="hp-fill" id="rightHpBar" style="width: 100%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="main-area">
+        <section id="startScreen" class="screen active">
+          <div class="card-box">
+            <h1 class="game-title">🏹 یادگیری زبان عربی ❄️</h1>
+            <p style="color: #cdebf7; font-size: clamp(12px, 3.2vw, 14px);">آزمون تعاملی زبان عربی پایه هشتم درس چهارم</p>
+
+            <div class="rules-list">
+              <div>🎯 هر پاسخ درست یعنی یک تیر دقیق به هدف و یک گام برای رسیدن به موفقیت.</div>
+              <div>🛡️ پاسخ اشتباه به حریف فرصت شلیک می‌دهد؛ با دقت واژه‌ها را بسنجید.</div>
+              <div>📊 پایان بازی، کارنامه و توضیحات هر واژه آماده مرور است.</div>
+            </div>
+
+            <button type="button" id="startBtn" class="primary-btn" onclick="startGame()">شروع آزمون 15 سؤالی 🎯</button>
+          </div>
+        </section>
+
+        <section id="gameScreen" class="screen">
+          <div class="question-card">
+            <div class="question-text" id="questionText"></div>
+            <div class="options-grid" id="optionsContainer"></div>
+            <div class="feedback-banner" id="feedbackBanner"></div>
+          </div>
+        </section>
+
+        <section id="endScreen" class="screen"></section>
+      </main>
+
+      <footer>
+        <span class="footer-badge">تهیه کننده: اسماعیل قاضی‌نیا | دبیر دینی و عربی شهرستان بوکان</span>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const rawQuestionData = {
+  "questions": [
+    {
+      "question": "معنای دقیق واژه «فِضَّة» کدام گزینه است؟",
+      "options": ["نقره", "طلا", "آهن", "مس"],
+      "answer": "نقره",
+      "explanation": "در بخش معجم درس آمده است: «فِضَّة: نقره»."
+    },
+    {
+      "question": "ترجمه صحیح عبارت «ابن آدم» در واژه‌نامه درس چیست؟",
+      "options": ["پسر کوچک", "آدمیزاد", "پدر و فرزند", "مرد دانا"],
+      "answer": "آدمیزاد",
+      "explanation": "در معجم درس آمده است: «ابن آدم: آدمیزاد (ابن: پسر، فرزند)»."
+    },
+    {
+      "question": "معنای کلمه «جَدَل» کدام است؟",
+      "options": ["گفت‌وگو", "جر و بحث", "اندیشه", "آرامش"],
+      "answer": "جر و بحث",
+      "explanation": "در بخش معجم درس آمده است: «جَدَل: جر و بحث»."
+    },
+    {
+      "question": "کدام گزینه ترجمه درست واژه «قادِم» است؟",
+      "options": ["گذشته", "امروز", "آینده", "نزدیک"],
+      "answer": "آینده",
+      "explanation": "در معجم درس آمده است: «قادم: آینده»."
+    },
+    {
+      "question": "معنای واژه «خَطايا» (مفرد: خَطِيئَة) چیست؟",
+      "options": ["نیکی‌ها", "گناهان، خطاها", "پرسش‌ها", "راهنمایی‌ها"],
+      "answer": "گناهان، خطاها",
+      "explanation": "در بخش واژه‌نامه درس آمده است: «خطايا: گناهان، خطاها (مفرد: خطيئة)»."
+    },
+    {
+      "question": "ترجمه صحیح واژه «قَوْل» کدام گزینه است؟",
+      "options": ["گفتار", "کردار", "پندار", "نگاه"],
+      "answer": "گفتار",
+      "explanation": "در معجم درس آمده است: «قَوْل: گفتار»."
+    },
+    {
+      "question": "واژه «مُخْتَبَر» به چه معناست؟",
+      "options": ["کتابخانه", "آزمایشگاه", "دانشگاه", "آموزشگاه"],
+      "answer": "آزمایشگاه",
+      "explanation": "در واژه‌نامه درس آمده است: «مختبر: آزمایشگاه»."
+    },
+    {
+      "question": "در ترکیب «فِي نَفْسِهِ»، ترجمه دقیق عبارت چیست؟",
+      "options": ["در خانه‌اش", "با خودش", "برای دوستش", "از نظر او"],
+      "answer": "با خودش",
+      "explanation": "در معجم درس آمده است: «نفس: خود، همان (في نَفْسِهِ: با خودش)»."
+    },
+    {
+      "question": "معنای واژه «فَرَس» در متن درس و واژه‌نامه چیست؟",
+      "options": ["گاو", "سنجاب", "اسب", "پرنده"],
+      "answer": "اسب",
+      "explanation": "در معجم درس آمده است: «فرس: اسب»."
+    },
+    {
+      "question": "ترجمه صحیح فعل «شاهَدَ» کدام گزینه است؟",
+      "options": ["دید", "شنید", "پرسید", "فهمید"],
+      "answer": "دید",
+      "explanation": "در بخش معجم درس آمده است: «شاهد: دید»."
+    },
+    {
+      "question": "معنای دقیق فعل «يُشاهِدُ» چیست؟",
+      "options": ["می‌شنود", "می‌بیند", "می‌گوید", "می‌خواند"],
+      "answer": "می‌بیند",
+      "explanation": "در واژه‌نامه درس آمده است: «يُشَاهِدُ: می‌بیند»."
+    },
+    {
+      "question": "فعل ماضی «كَذَبَ» به چه معناست؟",
+      "options": ["راست گفت", "دروغ گفت", "تشکر کرد", "سود رساند"],
+      "answer": "دروغ گفت",
+      "explanation": "در معجم درس آمده است: «كَذَبَ: دروغ گفت»."
+    },
+    {
+      "question": "ترجمه صحیح فعل «يَكْذِبُ» کدام گزینه است؟",
+      "options": ["راست می‌گوید", "دروغ می‌گوید", "می‌پرسد", "می‌داند"],
+      "answer": "دروغ می‌گوید",
+      "explanation": "در معجم درس آمده است: «يَكْذِبُ: دروغ می‌گوید»."
+    },
+    {
+      "question": "فعل مضارع «يَشْكُرُ» چگونه ترجمه می‌شود؟",
+      "options": ["تشکر می‌کند", "کمک می‌کند", "زندگی می‌کند", "عبور می‌کند"],
+      "answer": "تشکر می‌کند",
+      "explanation": "در معجم درس آمده است: «يَشْكُرُ: تشکر می‌کند»."
+    },
+    {
+      "question": "معنای دقیق فعل «صَدَقَ» چیست؟",
+      "options": ["دروغ گفت", "راست گفت", "پاسخ داد", "خوشحال شد"],
+      "answer": "راست گفت",
+      "explanation": "در واژه‌نامه درس آمده است: «صَدَقَ: راست گفت»."
+    },
+    {
+      "question": "ترجمه صحیح فعل «يَصْدُقُ» کدام گزینه است؟",
+      "options": ["راست می‌گوید", "دروغ می‌گوید", "سود می‌رساند", "برمی‌گردد"],
+      "answer": "راست می‌گوید",
+      "explanation": "در معجم درس آمده است: «يَصْدُقُ: راست می‌گوید»."
+    },
+    {
+      "question": "فعل «عاشَ» به چه معناست؟",
+      "options": ["زندگی کرد", "غرق شد", "ترسید", "خدمت کرد"],
+      "answer": "زندگی کرد",
+      "explanation": "در معجم درس آمده است: «عاش: زندگی کرد»."
+    },
+    {
+      "question": "معنای فعل مضارع «يَعِيشُ» کدام گزینه است؟",
+      "options": ["زندگی می‌کند", "می‌رود", "می‌ترسد", "می‌ایستد"],
+      "answer": "زندگی می‌کند",
+      "explanation": "در واژه‌نامه درس آمده است: «يعيش: زندگی می‌کند»."
+    },
+    {
+      "question": "ترجمه صحیح فعل «نَفَعَ» چیست؟",
+      "options": ["زیان رساند", "سود رساند", "پیدا کرد", "توضیح داد"],
+      "answer": "سود رساند",
+      "explanation": "در معجم درس آمده است: «نَفَعَ: سود رساند»."
+    },
+    {
+      "question": "فعل «يَنْفَعُ» به چه معناست؟",
+      "options": ["سود می‌رساند", "می‌پرسد", "می‌تواند", "برمی‌دارد"],
+      "answer": "سود می‌رساند",
+      "explanation": "در واژه‌نامه درس آمده است: «يَنْفَعُ: سود می‌رساند»."
+    },
+    {
+      "question": "معنای دقیق فعل «غَرِقَ» کدام است؟",
+      "options": ["عبور کرد", "غرق شد", "بازگشت", "ایستاد"],
+      "answer": "غرق شد",
+      "explanation": "در معجم درس آمده است: «غَرِقَ: غرق شد»."
+    },
+    {
+      "question": "ترجمه صحیح فعل «يَغْرَقُ» کدام گزینه است؟",
+      "options": ["غرق می‌شود", "می‌گذرد", "می‌فهمد", "می‌پرسد"],
+      "answer": "غرق می‌شود",
+      "explanation": "در واژه‌نامه درس آمده است: «يَغْرَقُ: غرق می‌شود»."
+    },
+    {
+      "question": "معنای کلمه «فِعْل» در بخش واژه‌نامه درس چیست؟",
+      "options": ["گفتار", "کار انجام دادن", "اندیشه", "آزمایش"],
+      "answer": "کار انجام دادن",
+      "explanation": "در معجم درس آمده است: «فعل: کار انجام دادن»."
+    },
+    {
+      "question": "ترجمه دقیق عبارت «الْقَرْيَةِ الْمُجاوِرَةِ» در متن درس کدام است؟",
+      "options": ["روستای بزرگ", "روستای مجاور (همسایه)", "شهر دور", "رودخانه عمیق"],
+      "answer": "روستای مجاور (همسایه)",
+      "explanation": "«الْقَرْيَة» به معنای روستا و «الْمُجاوِرَة» به معنای همسایه و مجاور است."
+    },
+    {
+      "question": "معنای جمله «نَحْنُ نَعِيشُ مَعَ الْإِنْسانِ وَ نَخْدِمُهُ» چیست؟",
+      "options": [
+        "ما با انسان زندگی می‌کنیم و به او خدمت می‌کنیم",
+        "ما از انسان می‌ترسیم و از او فرار می‌کنیم",
+        "ما کنار رودخانه زندگی می‌کنیم و آب می‌نوشیم",
+        "ما به انسان کمک می‌کنیم و از او تشکر می‌کنیم"
+      ],
+      "answer": "ما با انسان زندگی می‌کنیم و به او خدمت می‌کنیم",
+      "explanation": "«نَعِيشُ»: زندگی می‌کنیم؛ «مَعَ الْإِنْسانِ»: با انسان؛ «نَخْدِمُهُ»: به او خدمت می‌کنیم."
+    },
+    {
+      "question": "در جمله «لِذا أَطْلُبُ مِنْكَ حَمْلَ هذِهِ الْحَقِيبَةِ»، ترجمه دقیق «أَطْلُبُ» و «الْحَقِيبَة» به ترتیب کدام است؟",
+      "options": ["می‌خواهم - کیسه (کیف)", "می‌پرسم - نامه", "می‌بینم - بار", "می‌گویم - هدیه"],
+      "answer": "می‌خواهم - کیسه (کیف)",
+      "explanation": "«أَطْلُبُ مِنْكَ»: از تو می‌خواهم؛ «حَمْلَ هذِهِ الْحَقِيبَةِ»: بردن (حمل کردن) این کیسه یا کیف را."
+    },
+    {
+      "question": "ترجمه صحیح جمله «هُوَ يَحْمِلُ الْحَقِيبَةَ وَ يَذْهَبُ» کدام گزینه است؟",
+      "options": [
+        "او کیف را برمی‌دارد و می‌رود",
+        "او کیف را می‌گذارد و بازمی‌گردد",
+        "او کیف را می‌بیند و می‌ایستد",
+        "او کیف را باز می‌کند و می‌خورد"
+      ],
+      "answer": "او کیف را برمی‌دارد و می‌رود",
+      "explanation": "«يَحْمِلُ»: برمی‌دارد / حمل می‌کند؛ «يَذْهَبُ»: می‌رود."
+    },
+    {
+      "question": "در جمله «فِي طَرِيقِهِ يُشاهِدُ نَهْراً»، واژه «نَهْراً» به چه معناست؟",
+      "options": ["کوهی", "رودخانه‌ای", "درختی", "روستایی"],
+      "answer": "رودخانه‌ای",
+      "explanation": "«فِي طَرِيقِهِ يُشاهِدُ نَهْراً» یعنی: در راهش رودخانه‌ای را می‌بیند."
+    },
+    {
+      "question": "معنای دقیق جمله «يَخافُ الْفَرَسُ وَ يَسْأَلُ بَقَرَةً واقِفَةً جَنْبَ النَّهْرِ» چیست؟",
+      "options": [
+        "اسب می‌ترسد و از گاوی که کنار رودخانه ایستاده است می‌پرسد",
+        "اسب خوشحال می‌شود و به گاوی که در رودخانه است سلام می‌کند",
+        "اسب می‌ایستد و به سنجابی که کنار درخت است نگاه می‌کند",
+        "اسب می‌دود و از گاوی که در روستا زندگی می‌کند کمک می‌خواهد"
+      ],
+      "answer": "اسب می‌ترسد و از گاوی که کنار رودخانه ایستاده است می‌پرسد",
+      "explanation": "«يَخافُ»: می‌ترسد؛ «يَسْأَلُ»: می‌پرسد؛ «بَقَرَةً واقِفَةً جَنْبَ النَّهْرِ»: گاوی که کنار رودخانه ایستاده است."
+    },
+    {
+      "question": "در پرسش اسب «هَلْ أَقْدِرُ عَلَى الْعُبُورِ؟»، ترجمه دقیق «أَقْدِرُ» و «الْعُبُور» به ترتیب چیست؟",
+      "options": ["می‌توانم - عبور کردن (گذشتن)", "می‌ترسم - شنا کردن", "می‌روم - نوشیدن", "می‌دانم - بازگشتن"],
+      "answer": "می‌توانم - عبور کردن (گذشتن)",
+      "explanation": "«هَلْ أَقْدِرُ عَلَى الْعُبُورِ؟» یعنی: آیا می‌توانم عبور کنم (بگذرم)؟"
+    },
+    {
+      "question": "ترجمه صحیح جمله «لَيْسَ النَّهْرُ عَمِيقاً» کدام گزینه است؟",
+      "options": ["رودخانه بسیار عمیق است", "رودخانه عمیق نیست", "این رودخانه زیبا نیست", "آب رودخانه سرد نیست"],
+      "answer": "رودخانه عمیق نیست",
+      "explanation": "«لَيْسَ» فعل نفی به معنای «نیست» و «عَمِيقاً» به معنای «عمیق» است."
+    },
+    {
+      "question": "در عبارت «يَسْمَعُ سِنْجابٌ كَلامَهُما»، ترجمه دقیق فعل «يَسْمَعُ» و واژه «كَلامَهُما» چیست؟",
+      "options": ["می‌شنود - سخن آن دو را", "می‌بیند - کار آن دو را", "می‌گوید - نام آن دو را", "می‌فهمد - راز آن دو را"],
+      "answer": "می‌شنود - سخن آن دو را",
+      "explanation": "«يَسْمَعُ سِنْجابٌ كَلامَهُما» یعنی: سنجابی سخن آن دو را می‌شنود."
+    },
+    {
+      "question": "ترجمه صحیح جمله «أَنْتَ سَتَغْرَقُ فِي الْماءِ» کدام است؟",
+      "options": ["تو در آب غرق شدی", "تو در آب غرق خواهی شد", "تو از آب عبور خواهی کرد", "تو در آب شنا می‌کنی"],
+      "answer": "تو در آب غرق خواهی شد",
+      "explanation": "حرف «سَـ» بر سر فعل مضارع «تَغْرَقُ» (با ضمیر أَنْتَ) معنای آینده می‌دهد: «تو در آب غرق خواهی شد»."
+    },
+    {
+      "question": "معنای عبارت «عَلَيْكَ بِالرُّجُوعِ» در سخن سنجاب چیست؟",
+      "options": ["باید بازگردی (بر تو لازم است بازگردی)", "به سرعت عبور کن", "در کنار رودخانه بمان", "از گاو کمک بگیر"],
+      "answer": "باید بازگردی (بر تو لازم است بازگردی)",
+      "explanation": "«عَلَيْكَ بِالرُّجُوعِ» اصطلاحی به معنای «بر تو لازم است بازگردی / باید برگردی» است."
+    },
+    {
+      "question": "در جمله «أَيُّهَا الْفَرَسُ الصَّغِيرُ ... أَ تَفْهَمُ؟»، ترجمه دقیق فعل «أَ تَفْهَمُ؟» چیست؟",
+      "options": ["آیا می‌فهمی؟", "آیا می‌فهمد؟", "آیا می‌ترسی؟", "آیا می‌روی؟"],
+      "answer": "آیا می‌فهمی؟",
+      "explanation": "با توجه به خطاب «أَيُّهَا الْفَرَسُ الصَّغِيرُ» (ای اسب کوچک)، فاعل فعل «تَفْهَمُ» مفرد مذکر مخاطب است و «آیا می‌فهمی؟» ترجمه می‌شود."
+    },
+    {
+      "question": "معنای دقیق پرسش «ماذا أَفْعَلُ يا إِلهِي؟!» کدام است؟",
+      "options": [
+        "چه کار کنم (چه انجام دهم) ای خدای من؟!",
+        "کجا بروم ای مادر من؟!",
+        "چه بگویم ای دوست من؟!",
+        "چگونه عبور کنم ای خدای من؟!"
+      ],
+      "answer": "چه کار کنم (چه انجام دهم) ای خدای من؟!",
+      "explanation": "«ماذا»: چه؛ «أَفْعَلُ»: انجام دهم / کار کنم؛ «يا إِلهِي»: ای خدای من."
+    },
+    {
+      "question": "ترجمه صحیح جمله «فَيَرْجِعُ إِلَى والِدَتِهِ وَ يَبْحَثُ عَنِ الْحَلِّ» چیست؟",
+      "options": [
+        "پس به سوی مادرش بازمی‌گردد و به دنبال راه‌حل می‌گردد",
+        "پس به سوی روستا می‌رود و مادرش را صدا می‌زند",
+        "پس کنار مادرش می‌نشیند و داستان را فراموش می‌کند",
+        "پس از مادرش خداحافظی می‌کند و به راهش ادامه می‌دهد"
+      ],
+      "answer": "پس به سوی مادرش بازمی‌گردد و به دنبال راه‌حل می‌گردد",
+      "explanation": "«يَرْجِعُ إِلَى والِدَتِهِ»: به سوی مادرش بازمی‌گردد؛ «يَبْحَثُ عَنِ الْحَلِّ»: به دنبال راه‌حل می‌گردد."
+    },
+    {
+      "question": "در جمله «الْأُمُّ تَسْأَلُهُ: لِماذا رَجَعْتَ؟!»، ترجمه دقیق «تَسْأَلُهُ» و «رَجَعْتَ» به ترتیب کدام است؟",
+      "options": ["از او می‌پرسد - بازگشتی", "به او می‌گوید - رفتی", "او را می‌بیند - ترسیدی", "از او می‌خواهد - ایستادی"],
+      "answer": "از او می‌پرسد - بازگشتی",
+      "explanation": "فاعل «تَسْأَلُ» «الْأُمُّ» (مادر) است: «از او می‌پرسد»؛ «رَجَعْتَ» (مفرد مذکر مخاطب): «بازگشتی»."
+    },
+    {
+      "question": "معنای جمله «يَشْرَحُ الْفَرَسُ الْقِصَّةَ وَ تَسْمَعُ الْأُمُّ كَلامَهُ» کدام است؟",
+      "options": [
+        "اسب داستان را تعریف می‌کند و مادر سخنش را می‌شنود",
+        "اسب سؤال را می‌پرسد و مادر پاسخ می‌دهد",
+        "اسب کیسه را می‌آورد و مادر خوشحال می‌شود",
+        "اسب گریه می‌کند و مادر او را آرام می‌کند"
+      ],
+      "answer": "اسب داستان را تعریف می‌کند و مادر سخنش را می‌شنود",
+      "explanation": "«يَشْرَحُ الْفَرَسُ الْقِصَّةَ»: اسب داستان را شرح می‌دهد (تعریف می‌کند)؛ «تَسْمَعُ الْأُمُّ كَلامَهُ»: مادر سخنش را می‌شنود."
+    },
+    {
+      "question": "در جمله «الْأُمُّ تَسْأَلُ وَلَدَها: ما هُوَ رَأْيُكَ؟»، واژه «رَأْيُكَ» به چه معناست؟",
+      "options": ["دیدگاه (نظر) تو", "راه تو", "نام تو", "کار تو"],
+      "answer": "دیدگاه (نظر) تو",
+      "explanation": "«ما هُوَ رَأْيُكَ؟» یعنی: نظر (دیدگاه) تو چیست؟"
+    },
+    {
+      "question": "ترجمه دقیق عبارت «أَ تَقْدِرُ عَلَى الْعُبُورِ أَمْ لا؟» (خطاب مادر به فرزندش) چیست؟",
+      "options": [
+        "آیا می‌توانی عبور کنی یا نه؟",
+        "آیا می‌تواند عبور کند یا نه؟",
+        "آیا می‌توانم عبور کنم یا نه؟",
+        "آیا می‌خواهی بازگردی یا نه؟"
+      ],
+      "answer": "آیا می‌توانی عبور کنی یا نه؟",
+      "explanation": "چون مادر خطاب به فرزندش (مذکر مخاطب) سخن می‌گوید، «تَقْدِرُ» به معنای «می‌توانی» است: «آیا می‌توانی عبور کنی یا نه؟»."
+    },
+    {
+      "question": "معنای دقیق جمله «ما أَجابَ الْفَرَسُ الصَّغِيرُ عَنْ سُؤالِها» کدام گزینه است؟",
+      "options": [
+        "اسب کوچک به سؤال او پاسخ نداد",
+        "اسب کوچک سؤال او را نپرسید",
+        "اسب کوچک سخن او را نشنید",
+        "اسب کوچک از سؤال او نترسید"
+      ],
+      "answer": "اسب کوچک به سؤال او پاسخ نداد",
+      "explanation": "«ما أَجابَ ... عَنْ سُؤالِها» یعنی: به سؤال او پاسخ نداد."
+    },
+    {
+      "question": "ترجمه صحیح عبارت «لكِنَّهُ قالَ بَعْدَ دَقِيقَتَيْنِ» چیست؟",
+      "options": [
+        "اما او بعد از دو دقیقه گفت",
+        "زیرا او قبل از دو دقیقه پرسید",
+        "بنابراین او دو بار گفت",
+        "اما او بعد از دو ساعت بازگشت"
+      ],
+      "answer": "اما او بعد از دو دقیقه گفت",
+      "explanation": "«لكِنَّهُ قالَ»: اما او گفت؛ «بَعْدَ دَقِيقَتَيْنِ»: بعد از دو دقیقه."
+    },
+    {
+      "question": "معنای دقیق جملات «كُلٌّ مِنْهُما يَقُولُ رَأْيَهُ. فَهِمْتُ الْمَوْضُوعَ» کدام است؟",
+      "options": [
+        "هر یک از آن دو نظرش را می‌گوید. موضوع را فهمیدم",
+        "همه آن‌ها سخن می‌گویند. درس را فهمیدی",
+        "هر دو با هم بحث می‌کنند. راه‌حل را پیدا کردم",
+        "هیچ‌کدام نظرش را نمی‌گوید. موضوع را فراموش کردم"
+      ],
+      "answer": "هر یک از آن دو نظرش را می‌گوید. موضوع را فهمیدم",
+      "explanation": "«كُلٌّ مِنْهُما يَقُولُ رَأْيَهُ»: هر یک از آن دو نظرش را می‌گوید؛ «فَهِمْتُ الْمَوْضُوعَ»: موضوع را فهمیدم."
+    },
+    {
+      "question": "در کدام گزینه هم فعل مضارع به کار رفته است هم فعل ماضی؟",
+      "options": [
+        "نَحنُ نَعيشُ مَعَ الإنسانِ و نَخدِمُهُ!",
+        "لِذا أَطلُبُ مِنكَ حَملَ هذِهِ الحَقيبَةِ!",
+        "هُوَ يَحمِلُ الحَقيبَةَ و يَذهَبُ إِلى القَريَةِ!",
+        "الأُمُّ تَسأَلُهُ: لِماذا رَجَعتَ يا وَلَدي!"
+      ],
+      "answer": "الأُمُّ تَسأَلُهُ: لِماذا رَجَعتَ يا وَلَدي!",
+      "explanation": "در این جمله «تَسأَلُ» فعل مضارع (می‌پرسد) و «رَجَعتَ» فعل ماضی (برگشتی) است."
+    },
+    {
+      "question": "فعل «تَغسِلُ» برای کدام گزینه مناسب نیست؟",
+      "options": [
+        "البِنتُ .... يَدَها قَبلَ الطَّعامِ!",
+        "أَ أَنتَ .... مَلابِسَكَ كُلَّ یومِ؟",
+        "حَميدٌ .... قَميصَهُ بِنَفسِهِ!",
+        "يا وَلَدُ هَل .... وَجهَكَ كُلَّ صَباحٍ؟"
+      ],
+      "answer": "حَميدٌ .... قَميصَهُ بِنَفسِهِ!",
+      "explanation": "«حَميدٌ» مفرد مذکر غایب است و به فعل مضارع «يَغسِلُ» نیاز دارد، نه «تَغسِلُ»."
+    },
+    {
+      "question": "کدام فعل برای جای خالی مناسب است؟ «أَنا و أُمّي .......... إِلى سَفرَةٍ في نِهايَةِ الأُسبوعِ القادِمِ.»",
+      "options": ["ذَهَبنا", "تَذهَبُ", "سَوفَ أَذهَبُ", "سَوفَ نَذهَبُ"],
+      "answer": "سَوفَ نَذهَبُ",
+      "explanation": "عبارت «نِهايَةِ الأُسبوعِ القادِمِ» زمان آینده را نشان می‌دهد و فاعل «أَنا و أُمّي» معادل «نَحنُ» (ما) است."
+    },
+    {
+      "question": "کدام ضمیر برای جای خالی مناسب است؟ «.......... سَتَغرَقُ في النَّهرِ.»",
+      "options": ["أَنتَ", "أَنتِ", "هِيَ", "هر دو مورد «أَنتَ» و «هِيَ»"],
+      "answer": "هر دو مورد «أَنتَ» و «هِيَ»",
+      "explanation": "فعل «سَتَغرَقُ» با حرف مضارعه «تَـ» هم برای «أَنتَ» (توِ مذکر) و هم برای «هِيَ» (اوِ مؤنث) کاربرد دارد."
+    },
+    {
+      "question": "کدام گزینه از نظر قواعد درس نادرست است؟",
+      "options": [
+        "هَل تَعرِفينَ ذلِكَ المُدَرِّسَ يا أَخي؟",
+        "العاقِلُ يَنظُرُ إِلى اليَسارِ و اليَمينِ ثُمَّ يَعبُرُ الشّارِعَ.",
+        "والِدُنا يَعمَلُ في مَصنَعٍ خارِجَ البَلَدِ.",
+        "جَدّي ما طَلَبَ مِنّا مُساعَدَةً في حَلِّ المَسائِلِ."
+      ],
+      "answer": "هَل تَعرِفينَ ذلِكَ المُدَرِّسَ يا أَخي؟",
+      "explanation": "خطاب «يا أَخي» مذکر است؛ بنابراین فعل باید «تَعرِفُ» باشد، نه صیغه مؤنث «تَعرِفينَ»."
+    },
+    {
+      "question": "در کدام گزینه ضمیر داخل پرانتز با فعل قبل از خود مطابقت ندارد؟",
+      "options": ["أَ تَعمَلُ (أَنتَ)", "هَل تَعمَلُ (هِيَ)", "أَ تَصدُقينَ (نَحنُ)", "لِماذا يَكذِبُ (هُوَ)"],
+      "answer": "أَ تَصدُقينَ (نَحنُ)",
+      "explanation": "فعل «تَصدُقينَ» مخصوص مفرد مؤنث مخاطب («أَنتِ») است، نه «نَحنُ»."
+    },
+    {
+      "question": "کدام گزینه جای خالی را به درستی پر می‌کند؟ «أَ أَنْتِ .......... إِلَى الْمُخْتَبَرِ وَحْدَكِ يَا أُخْتِي؟»",
+      "options": ["تَذْهَبُ", "تَذْهَبِينَ", "سَتَذْهَبُ", "ذَهَبْتَ"],
+      "answer": "تَذْهَبِينَ",
+      "explanation": "ضمیر «أَنْتِ» و خطاب «يَا أُخْتِي» به مفرد مؤنث مخاطب اشاره دارند و با فعل مضارع «تَذْهَبِينَ» هماهنگ‌اند."
+    },
+    {
+      "question": "با توجه به قید زمان، گزینه مناسب کدام است؟ «نَحْنُ .......... إِلَى الْبُسْتَانِ قَبْلَ ثَلَاثَةِ أَيَّامٍ.»",
+      "options": ["ذَهَبْنَا", "سَنَذْهَبُ", "تَذْهَبُ", "سَوْفَ نَذْهَبُ"],
+      "answer": "ذَهَبْنَا",
+      "explanation": "عبارت «قَبْلَ ثَلَاثَةِ أَيَّامٍ» زمان گذشته را نشان می‌دهد و برای فاعل «نَحْنُ» فعل ماضی «ذَهَبْنَا» صحیح است."
+    },
+    {
+      "question": "در جمله «جَدِّي مَا طَلَبَ مِنَّا مُسَاعَدَةً وَ جَدَّتِي .......... الْمُسَاعَدَةَ»، جای خالی با کدام گزینه پر می‌شود؟",
+      "options": ["طَلَبَ", "يَطْلُبُ", "طَلَبَتْ", "نَطْلُبُ"],
+      "answer": "طَلَبَتْ",
+      "explanation": "«جَدَّتِي» بر مفرد مؤنث غایب دلالت دارد و فعل ماضی متناسب با آن «طَلَبَتْ» است."
+    },
+    {
+      "question": "کدام گزینه برای جای خالی مناسب است؟ «وَالِدُنَا .......... فِي الْمَصْنَعِ وَ وَالِدَتُنَا .......... فِي الْمَكْتَبَةِ.»",
+      "options": ["يَعْمَلُ ـ تَعْمَلُ", "تَعْمَلُ ـ يَعْمَلُ", "يَعْمَلُ ـ يَعْمَلُ", "تَعْمَلُ ـ تَعْمَلُ"],
+      "answer": "يَعْمَلُ ـ تَعْمَلُ",
+      "explanation": "«وَالِدُنَا» مفرد مذکر غایب (يَعْمَلُ) و «وَالِدَتُنَا» مفرد مؤنث غایب (تَعْمَلُ) است."
+    },
+    {
+      "question": "کدام فعل برای جای خالی در جمله زیر مناسب‌تر است؟ «فاطِمَةُ .......... دَرْسَهَا بِدِقَّةٍ.»",
+      "options": ["يَكْتُبُ", "تَكْتُبُ", "نَكْتُبُ", "أَكْتُبُ"],
+      "answer": "تَكْتُبُ",
+      "explanation": "«فاطِمَةُ» بر مؤنث غایب دلالت دارد و فعل مضارع آن با حرف «تَـ» به صورت «تَكْتُبُ» ساخته می‌شود."
+    },
+    {
+      "question": "کدام گزینه با توجه به فاعل «النَّجَّارُ» صحیح است؟",
+      "options": [
+        "النَّجَّارُ تَعْمَلُ جَيِّداً فِي الْمَصْنَعِ.",
+        "النَّجَّارُ يَعْمَلُ جَيِّداً فِي الْمَصْنَعِ.",
+        "النَّجَّارُ نَعْمَلُ جَيِّداً فِي الْمَصْنَعِ.",
+        "النَّجَّارُ تَعْمَلِينَ جَيِّداً فِي الْمَصْنَعِ."
+      ],
+      "answer": "النَّجَّارُ يَعْمَلُ جَيِّداً فِي الْمَصْنَعِ.",
+      "explanation": "«النَّجَّارُ» یک اسم مفرد است و بر مذکر غایب دلالت دارد و فعل مضارع مناسب برای آن «يَعْمَلُ» است."
+    },
+    {
+      "question": "در کدام جمله، فعل مضارع با فاعل یا ضمیر پیش از خود تطابق ندارد؟",
+      "options": [
+        "حَمِيدٌ يَرْجِعُ إِلَى الْبَيْتِ مَسَاءً.",
+        "تِلْكَ الْمَرْأَةُ تَنْفَعُ أُسْرَتَهَا.",
+        "نَحْنُ نَقْرَأُ الْقُرْآنَ كُلَّ صَبَاحٍ.",
+        "أَنَا تَرْجِعُ إِلَى الْقَرْيَةِ الْآنَ."
+      ],
+      "answer": "أَنَا تَرْجِعُ إِلَى الْقَرْيَةِ الْآنَ.",
+      "explanation": "ضمیر «أَنَا» اول شخص مفرد است و فعل مضارع آن با همزه «أَرْجِعُ» می‌آید، نه «تَرْجِعُ»."
+    },
+    {
+      "question": "کدام گزینه جای خالی را به درستی پر می‌کند؟ «أَنَا وَ حَمِيدٌ .......... إِلَى الْمَدرَسَةِ مَعاً.»",
+      "options": ["يَذْهَبُ", "تَذْهَبُ", "أَذْهَبُ", "نَذْهَبُ"],
+      "answer": "نَذْهَبُ",
+      "explanation": "ترکیب «أَنَا وَ حَمِيدٌ» معادل ضمیر «نَحْنُ» (ما) است و فعل مضارع «نَذْهَبُ» می‌گیرد."
+    },
+    {
+      "question": "در کدام گزینه، زمان هر دو فعل، ماضی است؟",
+      "options": ["طَرَقَتْ ـ سَأَفْهَمُ", "قَدَرْتَ ـ صَنَعْنَا", "غَسَلَتْ ـ نَشْرَبُ", "ذَهَبْنَا ـ تَطْرُقُ"],
+      "answer": "قَدَرْتَ ـ صَنَعْنَا",
+      "explanation": "هر دو فعل «قَدَرْتَ» (توانستی) و «صَنَعْنَا» (ساختیم) در زمان ماضی به کار رفته‌اند."
+    },
+    {
+      "question": "کدام عبارت نشان‌دهنده انجام کار در زمان آینده است؟",
+      "options": [
+        "نَحْنُ ذَهَبْنَا إِلَى الْبُسْتَانِ قَبْلَ ثَلَاثَةِ أَيَّامٍ.",
+        "أَنَا وَ أَخِي ذَهَبْنَا إِلَى الْمَدْرَسَةِ.",
+        "سَأَذْهَبُ بَعْدَ سَاعَتَيْنِ.",
+        "نَحْنُ نَأْكُلُ طَعَامَنَا."
+      ],
+      "answer": "سَأَذْهَبُ بَعْدَ سَاعَتَيْنِ.",
+      "explanation": "وجود حرف «سَـ» بر سر فعل مضارع و قید «بَعْدَ سَاعَتَيْنِ» نشان‌دهنده زمان آینده است."
+    },
+    {
+      "question": "اگر در جمله «هِيَ تَصْعَدُ» حرف «سَوْفَ» را پیش از فعل بیاوریم، چه تغییری در زمان جمله ایجاد می‌شود؟",
+      "options": [
+        "از زمان حال به زمان گذشته تبدیل می‌شود.",
+        "از زمان حال به زمان آینده تبدیل می‌شود.",
+        "فاعل جمله از مؤنث به مذکر تغییر می‌کند.",
+        "جمله از حالت خبری به پرسشی درمی‌آید."
+      ],
+      "answer": "از زمان حال به زمان آینده تبدیل می‌شود.",
+      "explanation": "حرف «سَوْفَ» بر سر فعل مضارع می‌آید و معنای آن را از حال به آینده (بالا خواهد رفت) تبدیل می‌کند."
+    },
+    {
+      "question": "اگر ضمیر «نَحْنُ» در عبارت «نَحْنُ نَرْجِعُ» را به «الطَّالِبَةُ» تغییر دهیم، شکل صحیح جمله چگونه می‌شود؟",
+      "options": ["الطَّالِبَةُ يَرْجِعُ.", "الطَّالِبَةُ تَرْجِعُ.", "الطَّالِبَةُ نَرْجِعُ.", "الطَّالِبَةُ تَرْجِعِينَ."],
+      "answer": "الطَّالِبَةُ تَرْجِعُ.",
+      "explanation": "«الطَّالِبَةُ» مفرد مؤنث غایب است و فعل مضارع آن با حرف «تَـ» به صورت «تَرْجِعُ» درمی‌آید."
+    },
+    {
+      "question": "در جمله «يَا نَجَّارُ، أَنْتَ تَعْمَلُ جَيِّداً وَ هٰذِهِ الْبِنْتُ تَعْمَلُ فِي الْمُخْتَبَرِ»، معنای دو فعل «تَعْمَلُ» به ترتیب چیست؟",
+      "options": ["کار می‌کنی ـ کار می‌کند", "کار می‌کند ـ کار می‌کنی", "کار می‌کنید ـ کار می‌کند", "کار کردی ـ کار کرد"],
+      "answer": "کار می‌کنی ـ کار می‌کند",
+      "explanation": "فعل اول با ضمیر «أَنْتَ» (تو کار می‌کنی) و فعل دوم با فاعل مؤنث غایب «هٰذِهِ الْبِنْتُ» (این دختر کار می‌کند) به کار رفته است."
+    }
+  ]
+};
+
+const questionBank = rawQuestionData.questions.map(item => ({
+  q: item.question,
+  o: item.options,
+  a: item.options.indexOf(item.answer),
+  exp: item.explanation
+}));
+
+    const snowCanvas = document.getElementById("snowCanvas");
+    const snowCtx = snowCanvas ? snowCanvas.getContext("2d") : null;
+    const trailCanvas = document.getElementById("trailCanvas");
+    const trailCtx = trailCanvas ? trailCanvas.getContext("2d") : null;
+    let snowflakes = [];
+    let activeArrowTrails = [];
+    let snowWidth = 0;
+    let snowHeight = 0;
+    let snowAnimId = null;
+    let isSnowRunning = false;
+    let confettiAnimId = null;
+
+    function resizeSnowCanvas() {
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+
+      if (snowCanvas && snowCtx) {
+        const shell = snowCanvas.parentElement;
+        snowWidth = shell ? shell.clientWidth : window.innerWidth;
+        snowHeight = shell ? shell.clientHeight : window.innerHeight;
+        snowCanvas.width = Math.round(snowWidth * dpr);
+        snowCanvas.height = Math.round(snowHeight * dpr);
+        snowCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+
+      if (trailCanvas && trailCtx) {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        trailCanvas.width = Math.round(w * dpr);
+        trailCanvas.height = Math.round(h * dpr);
+        trailCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+    }
+
+    function initSnowflakes() {
+      if (!snowCanvas || snowWidth <= 0 || snowHeight <= 0) return;
+      snowflakes = [];
+      const count = Math.min(95, Math.max(45, Math.floor((snowWidth * snowHeight) / 4800)));
+      for (let i = 0; i < count; i++) {
+        snowflakes.push({
+          x: Math.random() * snowWidth,
+          y: Math.random() * snowHeight,
+          r: Math.random() * 2.5 + 1.1,
+          speedY: Math.random() * 0.95 + 0.45,
+          driftX: Math.random() * 0.5 - 0.25,
+          phase: Math.random() * Math.PI * 2,
+          opacity: Math.random() * 0.48 + 0.45
+        });
+      }
+    }
+
+    function startSnowLoop() {
+      if (isSnowRunning) return;
+      isSnowRunning = true;
+      snowAnimId = requestAnimationFrame(animateSnow);
+    }
+
+    function stopSnowLoop() {
+      isSnowRunning = false;
+      if (snowAnimId !== null) {
+        cancelAnimationFrame(snowAnimId);
+        snowAnimId = null;
+      }
+    }
+
+    function stopConfetti() {
+      if (confettiAnimId !== null) {
+        cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = null;
+      }
+      if (snowCanvas && snowCtx && snowWidth > 0 && snowHeight > 0) {
+        snowCtx.clearRect(0, 0, snowWidth, snowHeight);
+      }
+    }
+
+    function runConfettiCelebration(durationMs = 2800) {
+      if (!snowCanvas || !snowCtx || snowWidth <= 0 || snowHeight <= 0) return;
+      stopConfetti();
+
+      const colors = ["#fde047", "#4ade80", "#38bdf8", "#fb7185", "#c084fc", "#fb923c"];
+      const pieces = [];
+      const count = 60;
+
+      for (let i = 0; i < count; i++) {
+        pieces.push({
+          x: Math.random() * snowWidth,
+          y: -15 - Math.random() * 140,
+          w: Math.random() * 6 + 4,
+          h: Math.random() * 4 + 3,
+          speedY: Math.random() * 2.2 + 1.4,
+          driftX: Math.random() * 1.4 - 0.7,
+          rotation: Math.random() * Math.PI * 2,
+          rotSpeed: (Math.random() - 0.5) * 0.16,
+          color: colors[i % colors.length],
+          phase: Math.random() * Math.PI * 2
+        });
+      }
+
+      const startTime = performance.now();
+
+      function frame(now) {
+        const elapsed = now - startTime;
+        const fadeAlpha = elapsed > durationMs - 650
+          ? Math.max(0, (durationMs - elapsed) / 650)
+          : 1;
+
+        snowCtx.clearRect(0, 0, snowWidth, snowHeight);
+
+        if (elapsed < durationMs) {
+          for (let i = 0; i < pieces.length; i++) {
+            const p = pieces[i];
+            p.y += p.speedY;
+            p.phase += 0.06;
+            p.x += p.driftX + Math.sin(p.phase) * 0.6;
+            p.rotation += p.rotSpeed;
+
+            if (p.y > snowHeight + 12) {
+              p.y = -10;
+              p.x = Math.random() * snowWidth;
+            }
+
+            snowCtx.save();
+            snowCtx.globalAlpha = fadeAlpha;
+            snowCtx.translate(p.x, p.y);
+            snowCtx.rotate(p.rotation);
+            snowCtx.fillStyle = p.color;
+            snowCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            snowCtx.restore();
+          }
+          confettiAnimId = requestAnimationFrame(frame);
+        } else {
+          snowCtx.clearRect(0, 0, snowWidth, snowHeight);
+          confettiAnimId = null;
+        }
+      }
+
+      confettiAnimId = requestAnimationFrame(frame);
+    }
+
+    function animateSnow() {
+      if (!isSnowRunning) return;
+
+      if (snowCanvas && snowCtx && snowWidth > 0 && snowHeight > 0) {
+        snowCtx.clearRect(0, 0, snowWidth, snowHeight);
+        for (let i = 0; i < snowflakes.length; i++) {
+          const f = snowflakes[i];
+          f.y += f.speedY;
+          f.phase += 0.018;
+          f.x += f.driftX + Math.sin(f.phase) * 0.25;
+
+          if (f.y > snowHeight + 5) {
+            f.y = -5;
+            f.x = Math.random() * snowWidth;
+          }
+          if (f.x > snowWidth + 5) f.x = -5;
+          if (f.x < -5) f.x = snowWidth + 5;
+
+          snowCtx.beginPath();
+          snowCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+          snowCtx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
+          snowCtx.fill();
+        }
+      }
+
+      if (activeArrowTrails.length > 0) {
+        renderArrowTrails();
+      } else if (trailCanvas && trailCtx) {
+        trailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      }
+
+      snowAnimId = requestAnimationFrame(animateSnow);
+    }
+
+    function renderArrowTrails() {
+      if (!trailCanvas || !trailCtx) return;
+      trailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      const now = performance.now();
+
+      for (let tIdx = activeArrowTrails.length - 1; tIdx >= 0; tIdx--) {
+        const trail = activeArrowTrails[tIdx];
+        trail.points = trail.points.filter(p => now - p.time < trail.maxAge);
+
+        if (trail.points.length >= 2) {
+          trailCtx.save();
+          trailCtx.lineCap = "round";
+          trailCtx.lineJoin = "round";
+
+          for (let i = 1; i < trail.points.length; i++) {
+            const p0 = trail.points[i - 1];
+            const p1 = trail.points[i];
+            const lifeRatio = 1 - (now - p1.time) / trail.maxAge;
+            if (lifeRatio <= 0) continue;
+
+            trailCtx.beginPath();
+            trailCtx.moveTo(p0.x, p0.y);
+            trailCtx.lineTo(p1.x, p1.y);
+            trailCtx.strokeStyle = `rgba(${trail.rgb}, ${(lifeRatio * 0.75).toFixed(2)})`;
+            trailCtx.lineWidth = Math.max(0.6, lifeRatio * 4);
+            trailCtx.stroke();
+
+            trailCtx.beginPath();
+            trailCtx.moveTo(p0.x, p0.y);
+            trailCtx.lineTo(p1.x, p1.y);
+            trailCtx.strokeStyle = `rgba(${trail.coreRgb}, ${(lifeRatio * 0.9).toFixed(2)})`;
+            trailCtx.lineWidth = Math.max(0.3, lifeRatio * 1.5);
+            trailCtx.stroke();
+          }
+          trailCtx.restore();
+        }
+
+        for (let sIdx = trail.sparks.length - 1; sIdx >= 0; sIdx--) {
+          const sp = trail.sparks[sIdx];
+          sp.x += sp.vx;
+          sp.y += sp.vy;
+          sp.alpha -= 0.036;
+
+          if (sp.alpha <= 0) {
+            trail.sparks.splice(sIdx, 1);
+            continue;
+          }
+
+          trailCtx.beginPath();
+          trailCtx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
+          trailCtx.fillStyle = `rgba(${trail.coreRgb}, ${sp.alpha.toFixed(2)})`;
+          trailCtx.fill();
+        }
+
+        if (trail.finished && trail.points.length === 0 && trail.sparks.length === 0) {
+          activeArrowTrails.splice(tIdx, 1);
+        }
+      }
+    }
+
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        resizeSnowCanvas();
+        initSnowflakes();
+      }, 150);
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) {
+        stopSnowLoop();
+      } else if (!document.getElementById("endScreen").classList.contains("active")) {
+        startSnowLoop();
+      }
+    });
+
+    let audioCtx = null;
+    let isSoundEnabled = true;
+
+    function toggleSound() {
+      isSoundEnabled = !isSoundEnabled;
+      const btn = document.getElementById("soundToggleBtn");
+      if (btn) btn.textContent = isSoundEnabled ? "🔊" : "🔇";
+    }
+    window.toggleSound = toggleSound;
+
+    function getAudioCtx() {
+      if (!audioCtx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
+      }
+      if (audioCtx && audioCtx.state === "suspended") {
+        audioCtx.resume().catch(() => {});
+      }
+      return audioCtx;
+    }
+
+    function playStartSound() {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const startNotes = [440, 554.37, 659.25];
+        startNotes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "triangle";
+          const t0 = now + idx * 0.07;
+          osc.frequency.setValueAtTime(freq, t0);
+          gain.gain.setValueAtTime(0.16, t0);
+          gain.gain.exponentialRampToValueAtTime(0.001, t0 + 0.18);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(t0);
+          osc.stop(t0 + 0.19);
+        });
+      } catch (e) {}
+    }
+
+    function playBowSound() {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(160, ctx.currentTime + 0.22);
+
+        gain.gain.setValueAtTime(0.18, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.23);
+      } catch (e) {}
+    }
+
+    function playHitSound(isGood) {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (isGood) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(580, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
+
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.2);
+        } else {
+          const notes = [
+            { freq: 310, start: 0, dur: 0.14 },
+            { freq: 215, start: 0.12, dur: 0.24 }
+          ];
+          notes.forEach(n => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(n.freq, now + n.start);
+            osc.frequency.exponentialRampToValueAtTime(n.freq * 0.86, now + n.start + n.dur);
+
+            gain.gain.setValueAtTime(0.22, now + n.start);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now + n.start);
+            osc.stop(now + n.start + n.dur + 0.02);
+          });
+        }
+      } catch (e) {}
+    }
+
+    function playDeepFallSound() {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+
+        const now = ctx.currentTime;
+        const dur = 1.65;
+
+        const osc = ctx.createOscillator();
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.linearRampToValueAtTime(760, now + 0.08);
+        osc.frequency.exponentialRampToValueAtTime(190, now + dur);
+
+        const lp = ctx.createBiquadFilter();
+        lp.type = "lowpass";
+        lp.frequency.setValueAtTime(2200, now);
+        lp.frequency.exponentialRampToValueAtTime(650, now + dur);
+
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.28, now + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+        osc.connect(lp);
+        lp.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + dur + 0.04);
+      } catch (e) {}
+    }
+
+    function playEndSound(isWin) {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const notes = isWin ? [523.25, 659.25, 783.99] : [330, 261.63];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          const start = ctx.currentTime + idx * 0.12;
+          osc.frequency.setValueAtTime(freq, start);
+          gain.gain.setValueAtTime(0.16, start);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.28);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.3);
+        });
+      } catch (e) {}
+    }
+
+    const TOTAL_QUESTIONS = 15;
+    let quizQuestions = [];
+    let currentIndex = 0;
+    let playerScore = 0;
+    let enemyHits = 0;
+    let playerHP = TOTAL_QUESTIONS;
+    let enemyHP = TOTAL_QUESTIONS;
+    let userHistory = [];
+    let isAnimating = false;
+
+    // Footer integrity guard: any edit/removal/replacement locks the quiz.
+    const FOOTER_TEXT = "تهیه کننده: اسماعیل قاضی‌نیا | دبیر دینی و عربی شهرستان بوکان";
+    const originalFooter = document.querySelector(".ui-layer > footer");
+    const originalFooterMarkup = originalFooter ? originalFooter.outerHTML : "";
+    let footerTampered = !originalFooter;
+
+    function lockQuizForFooterTampering() {
+      if (footerTampered && document.documentElement.dataset.footerLocked === "1") return;
+      footerTampered = true;
+      document.documentElement.dataset.footerLocked = "1";
+      isAnimating = true;
+      const q = document.getElementById("questionText");
+      const options = document.getElementById("optionsContainer");
+      const feedback = document.getElementById("feedbackBanner");
+      if (q) {
+        q.classList.remove("long-q");
+        q.textContent = "⚠️ یکپارچگی بخش تهیه‌کننده تغییر کرده است؛ آزمون غیرفعال شد.";
+      }
+      if (options) options.replaceChildren();
+      if (feedback) {
+        feedback.className = "feedback-banner show feedback-err";
+        feedback.textContent = "برای ادامه، فایل اصلی و دست‌نخورده آزمون را اجرا کنید.";
+      }
+      const start = document.getElementById("startBtn");
+      if (start) start.disabled = true;
+      switchScreen("gameScreen");
+    }
+
+    function verifyFooterIntegrity() {
+      const currentFooter = document.querySelector(".ui-layer > footer");
+      const valid = !footerTampered && currentFooter === originalFooter &&
+        !!currentFooter && currentFooter.isConnected &&
+        currentFooter.outerHTML === originalFooterMarkup &&
+        currentFooter.textContent.trim() === FOOTER_TEXT;
+      if (!valid) lockQuizForFooterTampering();
+      return valid;
+    }
+
+    if (originalFooter) {
+      const footerObserver = new MutationObserver(() => verifyFooterIntegrity());
+      footerObserver.observe(document.documentElement, {
+        subtree: true, childList: true, characterData: true, attributes: true
+      });
+    } else {
+      lockQuizForFooterTampering();
+    }
+
+    function toPersianNum(num) {
+      return String(num).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
+    }
+
+    function shuffleArray(arr) {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function switchScreen(screenId) {
+      document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+      const target = document.getElementById(screenId);
+      if (target) target.classList.add("active");
+    }
+
+    function resetArchersFallState() {
+      const leftBox = document.getElementById("leftArcherBox");
+      const rightBox = document.getElementById("rightArcherBox");
+      if (leftBox) {
+        leftBox.classList.remove("archer-fall-enemy", "archer-hit");
+        leftBox.style.opacity = "1";
+        leftBox.style.transform = "";
+      }
+      if (rightBox) {
+        rightBox.classList.remove("archer-fall-player", "archer-hit");
+        rightBox.style.opacity = "1";
+        rightBox.style.transform = "";
+      }
+    }
+
+    function triggerFinalFallAnimation(targetSide) {
+      try {
+        const targetEl = document.getElementById(targetSide === "enemy" ? "leftArcherBox" : "rightArcherBox");
+        if (!targetEl) return;
+        targetEl.classList.remove("archer-hit", "archer-fall-enemy", "archer-fall-player");
+        void targetEl.offsetWidth;
+        targetEl.classList.add(targetSide === "enemy" ? "archer-fall-enemy" : "archer-fall-player");
+      } catch (e) {}
+
+      try {
+        playDeepFallSound();
+      } catch (e) {}
+    }
+
+    function updateHealthBar(barId, currentHp, maxHp) {
+      const safeHp = Math.max(0, currentHp);
+      const percent = Math.round((safeHp / maxHp) * 100);
+      const barEl = document.getElementById(barId);
+      if (!barEl) return;
+
+      barEl.style.width = `${percent}%`;
+      barEl.classList.remove("hp-medium", "hp-low");
+      if (percent <= 30) {
+        barEl.classList.add("hp-low");
+      } else if (percent <= 60) {
+        barEl.classList.add("hp-medium");
+      }
+    }
+
+    function updateScoreUI(isPlaying) {
+      const scoreEl = document.getElementById("playerScoreText");
+      const progressEl = document.getElementById("progressText");
+      if (scoreEl) scoreEl.textContent = `${toPersianNum(playerScore)} امتیاز`;
+      if (progressEl) {
+        progressEl.textContent = isPlaying
+          ? `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))} از ${toPersianNum(TOTAL_QUESTIONS)}`
+          : "آماده نبرد";
+      }
+
+      updateHealthBar("rightHpBar", playerHP, TOTAL_QUESTIONS);
+      updateHealthBar("leftHpBar", enemyHP, TOTAL_QUESTIONS);
+    }
+
+    function startGame() {
+      if (!verifyFooterIntegrity()) return;
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().then(() => playStartSound()).catch(() => playStartSound());
+      } else {
+        playStartSound();
+      }
+      stopConfetti();
+      startSnowLoop();
+      resetArchersFallState();
+
+      quizQuestions = shuffleArray(questionBank).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      playerScore = 0;
+      enemyHits = 0;
+      playerHP = TOTAL_QUESTIONS;
+      enemyHP = TOTAL_QUESTIONS;
+      userHistory = [];
+      isAnimating = false;
+
+      updateScoreUI(true);
+      switchScreen("gameScreen");
+      renderQuestion();
+    }
+    window.startGame = startGame;
+
+    function renderQuestion() {
+      if (!verifyFooterIntegrity()) return;
+      const item = quizQuestions[currentIndex];
+      if (!item) return;
+
+      updateScoreUI(true);
+
+      const questionTextEl = document.getElementById("questionText");
+      const optionsContainer = document.getElementById("optionsContainer");
+      const feedbackBanner = document.getElementById("feedbackBanner");
+
+      if (!questionTextEl || !optionsContainer || !feedbackBanner) return;
+
+      questionTextEl.textContent = item.q;
+      questionTextEl.classList.toggle("long-q", item.q.length > 52);
+
+      const maxOptionLen = Math.max(...item.o.map(opt => opt.length));
+      optionsContainer.classList.toggle("single-col", maxOptionLen > 18);
+
+      optionsContainer.innerHTML = "";
+      feedbackBanner.className = "feedback-banner";
+      feedbackBanner.textContent = "";
+
+      const shuffledOptions = shuffleArray(item.o.map((text, idx) => ({ text, originalIdx: idx })));
+
+      shuffledOptions.forEach((optObj) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        btn.dataset.idx = optObj.originalIdx;
+        btn.textContent = optObj.text;
+        btn.addEventListener("click", () => handleAnswer(optObj.originalIdx));
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIndex) {
+      if (!verifyFooterIntegrity() || isAnimating) return;
+      isAnimating = true;
+
+      const item = quizQuestions[currentIndex];
+      if (!item) {
+        isAnimating = false;
+        return;
+      }
+
+      const isCorrect = selectedIndex === item.a;
+      const isLastQuestion = currentIndex === TOTAL_QUESTIONS - 1;
+
+      const buttons = document.querySelectorAll("#optionsContainer .option-btn");
+      buttons.forEach((btn) => {
+        const btnIdx = Number(btn.dataset.idx);
+        btn.disabled = true;
+        if (btnIdx === item.a) {
+          btn.classList.add("correct-ans");
+        } else if (btnIdx === selectedIndex && !isCorrect) {
+          btn.classList.add("wrong-ans");
+        }
+      });
+
+      userHistory.push({
+        question: item.q,
+        userAnswer: item.o[selectedIndex],
+        correctAnswer: item.o[item.a],
+        isCorrect: isCorrect,
+        explanation: item.exp
+      });
+
+      const feedback = document.getElementById("feedbackBanner");
+      if (feedback) {
+        if (isCorrect) {
+          feedback.className = "feedback-banner show feedback-ok";
+          feedback.textContent = `آفرین! پاسخ درست است (+۱۰۰ امتیاز) — ${item.exp}`;
+        } else {
+          feedback.className = "feedback-banner show feedback-err";
+          feedback.textContent = `پاسخ نادرست! صحیح: «${item.o[item.a]}» — ${item.exp}`;
+        }
+      }
+
+      fireArrow(isCorrect, () => {
+        if (isCorrect) {
+          playerScore += 100;
+          enemyHP = Math.max(0, enemyHP - 1);
+        } else {
+          enemyHits++;
+          playerHP = Math.max(0, playerHP - 1);
+        }
+
+        updateScoreUI(true);
+
+        const playerHitsCount = playerScore / 100;
+        let shouldFall = false;
+
+        if (isLastQuestion) {
+          if (playerHitsCount > enemyHits) {
+            triggerFinalFallAnimation("enemy");
+            shouldFall = true;
+          } else if (enemyHits > playerHitsCount) {
+            triggerFinalFallAnimation("player");
+            shouldFall = true;
+          }
+        }
+
+        const nextDelay = shouldFall ? 2000 : 420;
+
+        setTimeout(() => {
+          if (!verifyFooterIntegrity()) return;
+          currentIndex++;
+          isAnimating = false;
+          if (currentIndex >= TOTAL_QUESTIONS) {
+            finishGame();
+          } else {
+            renderQuestion();
+          }
+        }, nextDelay);
+      });
+    }
+
+    function fireArrow(fromRightToLeft, onImpact) {
+      playBowSound();
+
+      const rightSvg = document.getElementById("rightArcherSvg");
+      const leftSvg = document.getElementById("leftArcherSvg");
+      const rightReady = document.getElementById("rightReadyArrow");
+      const leftReady = document.getElementById("leftReadyArrow");
+
+      const rightBowAnchor = document.getElementById("rightBowAnchor");
+      const leftBowAnchor = document.getElementById("leftBowAnchor");
+      const rightTargetAnchor = document.getElementById("rightTargetAnchor");
+      const leftTargetAnchor = document.getElementById("leftTargetAnchor");
+
+      if (!rightSvg || !leftSvg || !rightBowAnchor || !leftBowAnchor || !rightTargetAnchor || !leftTargetAnchor) {
+        if (onImpact) onImpact();
+        return;
+      }
+
+      const rightRect = rightSvg.getBoundingClientRect();
+      const arrowWidth = Math.max(32, Math.min(50, Math.round(rightRect.width * 0.54)));
+      const arrowHeight = Math.round(arrowWidth * 0.28);
+
+      let startX, startY, targetAnchorEl, arrowColor, tipColor;
+
+      if (fromRightToLeft) {
+        rightSvg.classList.remove("shoot-right");
+        void rightSvg.offsetWidth;
+        rightSvg.classList.add("shoot-right");
+
+        const bowRect = rightBowAnchor.getBoundingClientRect();
+        startX = bowRect.left + bowRect.width / 2;
+        startY = bowRect.top + bowRect.height / 2;
+        if (rightReady) rightReady.style.opacity = "0";
+
+        targetAnchorEl = leftTargetAnchor;
+        arrowColor = "#d62828";
+        tipColor = "#ff4d6d";
+      } else {
+        leftSvg.classList.remove("shoot-left");
+        void leftSvg.offsetWidth;
+        leftSvg.classList.add("shoot-left");
+
+        const bowRect = leftBowAnchor.getBoundingClientRect();
+        startX = bowRect.left + bowRect.width / 2;
+        startY = bowRect.top + bowRect.height / 2;
+        if (leftReady) leftReady.style.opacity = "0";
+
+        targetAnchorEl = rightTargetAnchor;
+        arrowColor = "#0077b6";
+        tipColor = "#48cae4";
+      }
+
+      const initialTargetRect = targetAnchorEl.getBoundingClientRect();
+      const initialEndX = initialTargetRect.left + initialTargetRect.width / 2;
+
+      const arrowEl = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      arrowEl.setAttribute("viewBox", "0 0 64 18");
+      arrowEl.classList.add("flying-arrow");
+      arrowEl.style.width = `${arrowWidth}px`;
+      arrowEl.style.height = `${arrowHeight}px`;
+      arrowEl.innerHTML = `
+        <line x1="6" y1="9" x2="54" y2="9" stroke="${arrowColor}" stroke-width="3.5" stroke-linecap="round" />
+        <polygon points="62,9 50,3 53,9 50,15" fill="${tipColor}" />
+        <polygon points="8,9 1,4 4,9 1,14" fill="${tipColor}" />
+      `;
+      document.body.appendChild(arrowEl);
+
+      const duration = 520;
+      const distanceX = Math.abs(initialEndX - startX);
+      const arcHeight = Math.min(72, Math.max(30, distanceX * 0.15));
+      const startTime = performance.now();
+
+      const trailObj = {
+        points: [{ x: startX, y: startY, time: startTime }],
+        sparks: [],
+        maxAge: 150,
+        finished: false,
+        rgb: fromRightToLeft ? "239, 68, 68" : "14, 165, 233",
+        coreRgb: fromRightToLeft ? "254, 202, 202" : "186, 230, 253"
+      };
+      activeArrowTrails.push(trailObj);
+
+      function step(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / duration, 1);
+
+        const liveTargetRect = targetAnchorEl.getBoundingClientRect();
+        const endX = liveTargetRect.left + liveTargetRect.width / 2;
+        const endY = liveTargetRect.top + liveTargetRect.height / 2;
+
+        const curX = startX + (endX - startX) * t;
+        const curY = startY + (endY - startY) * t - 4 * arcHeight * t * (1 - t);
+
+        const dx = endX - startX;
+        const dy = (endY - startY) - 4 * arcHeight * (1 - 2 * t);
+        const angleRad = Math.atan2(dy, dx);
+        const angleDeg = (angleRad * 180) / Math.PI;
+
+        const tailOffset = arrowWidth * 0.44;
+        const tailX = curX - Math.cos(angleRad) * tailOffset;
+        const tailY = curY - Math.sin(angleRad) * tailOffset;
+
+        trailObj.points.push({ x: tailX, y: tailY, time: now });
+        if (Math.random() < 0.35) {
+          trailObj.sparks.push({
+            x: tailX + (Math.random() - 0.5) * 3,
+            y: tailY + (Math.random() - 0.5) * 3,
+            vx: (Math.random() - 0.5) * 0.5,
+            vy: (Math.random() - 0.5) * 0.5,
+            r: Math.random() * 0.9 + 0.45,
+            alpha: 0.9
+          });
+        }
+
+        arrowEl.style.left = `${curX - arrowWidth / 2}px`;
+        arrowEl.style.top = `${curY - arrowHeight / 2}px`;
+        arrowEl.style.transform = `rotate(${angleDeg}deg)`;
+
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          trailObj.finished = true;
+          arrowEl.remove();
+          if (rightReady) rightReady.style.opacity = "1";
+          if (leftReady) leftReady.style.opacity = "1";
+
+          playHitSound(fromRightToLeft);
+
+          if (fromRightToLeft) {
+            triggerTargetHit("leftArcherBox", endX, endY, "#e63946", "+۱۰۰ امتیاز");
+          } else {
+            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", "پاسخ اشتباه!");
+          }
+
+          if (onImpact) onImpact();
+        }
+      }
+
+      requestAnimationFrame(step);
+    }
+
+    function triggerTargetHit(targetId, hitX, hitY, color, labelText) {
+      const targetEl = document.getElementById(targetId);
+      if (targetEl) {
+        targetEl.classList.remove("archer-hit");
+        void targetEl.offsetWidth;
+        targetEl.classList.add("archer-hit");
+      }
+
+      const floatEl = document.createElement("div");
+      floatEl.className = "floating-score";
+      const clampedX = Math.max(12, Math.min(window.innerWidth - 95, hitX - 36));
+      floatEl.style.left = `${clampedX}px`;
+      floatEl.style.top = `${Math.max(24, hitY - 24)}px`;
+      floatEl.style.color = color === "#e63946" ? "#15803d" : "#b91c1c";
+      floatEl.style.background = "rgba(255,255,255,0.95)";
+      floatEl.style.padding = "2px 8px";
+      floatEl.style.borderRadius = "999px";
+      floatEl.textContent = labelText;
+      document.body.appendChild(floatEl);
+      setTimeout(() => floatEl.remove(), 900);
+
+      for (let i = 0; i < 6; i++) {
+        const spark = document.createElement("div");
+        spark.className = "impact-spark";
+        spark.style.background = i % 2 === 0 ? color : "#ffffff";
+        spark.style.left = `${hitX}px`;
+        spark.style.top = `${hitY}px`;
+        document.body.appendChild(spark);
+
+        const angle = (Math.PI * 2 * i) / 6;
+        const dist = 16 + Math.random() * 14;
+        if (spark.animate) {
+          spark.animate(
+            [
+              { transform: "translate3d(0,0,0) scale(1)", opacity: 1 },
+              { transform: `translate3d(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px, 0) scale(0.2)`, opacity: 0 }
+            ],
+            { duration: 360, easing: "ease-out" }
+          );
+        }
+        setTimeout(() => spark.remove(), 380);
+      }
+    }
+
+    function finishGame() {
+      const progressEl = document.getElementById("progressText");
+      if (progressEl) progressEl.textContent = "پایان آزمون";
+      switchScreen("endScreen");
+      stopSnowLoop();
+
+      const correctCount = userHistory.filter(rec => rec.isCorrect).length;
+      const accuracyPercent = (correctCount / TOTAL_QUESTIONS) * 100;
+      const isWinner = playerScore >= Math.ceil(TOTAL_QUESTIONS / 2) * 100;
+      playEndSound(isWinner);
+
+      if (accuracyPercent >= 80) {
+        runConfettiCelebration(2800);
+      }
+
+      const endEl = document.getElementById("endScreen");
+      if (!endEl) return;
+      endEl.scrollTop = 0;
+
+      const rawScore20 = (correctCount / TOTAL_QUESTIONS) * 20;
+      const scoreOutOf20 = Math.round(rawScore20 * 4) / 4;
+      const formattedGrade = toPersianNum(String(scoreOutOf20).replace('.', '/'));
+      lastQuizResult = {
+        scoreOutOf20: scoreOutOf20,
+        playerScore: playerScore,
+        correctCount: correctCount,
+        enemyHits: enemyHits,
+        total: TOTAL_QUESTIONS,
+        status: isWinner ? "موفق" : "نیاز به تلاش بیشتر"
+      };
+      hasSubmittedResult = false;
+
+      let analysisHTML = "";
+      userHistory.forEach((rec, idx) => {
+        analysisHTML += `
+          <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
+            <div style="font-weight:800; margin-bottom:3px;">
+              ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
+            </div>
+            <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
+            <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
+          </div>
+        `;
+      });
+
+      endEl.innerHTML = `
+        <div class="end-summary">
+          <h2 class="game-title">${isWinner ? "🏆 موفقیت در یادگیری زبان عربی!" : "❄️ پایان آزمون زبان عربی"}</h2>
+          <p style="color:#cdebf7; font-size:12.5px;">
+            ${isWinner ? "آفرین! عملکرد شما قابل تحسین است." : "تلاش خوبی بود! با مرور توضیحات زیر دوباره آزمون را امتحان کنید."}
+          </p>
+
+          <div class="score-grid">
+            <div class="score-pill" style="background:rgba(27,138,75,0.4); border:1px solid #69f0ae;">
+              🎯 امتیاز شما: ${toPersianNum(playerScore)} از ${toPersianNum(TOTAL_QUESTIONS * 100)}
+            </div>
+            <div class="score-pill" style="background:rgba(0,119,182,0.4); border:1px solid #90e0ef;">
+              🏹 ضربه حریف: ${toPersianNum(enemyHits)}
+            </div>
+          </div>
+
+          <div class="end-actions">
+            <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
+              📝 نمره آزمون شما: ${formattedGrade} از ۲۰
+            </div>
+            <button type="button" class="primary-btn" style="padding:7px 16px; font-size:13px;" onclick="startGame()">🔄 شروع مجدد</button>
+          </div>
+
+          <div class="submit-result-box">
+            <input type="text" id="studentNameInput" class="student-name-input" placeholder="نام و نام خانوادگی..." autocomplete="name" />
+            <div class="student-class-row">
+              <select id="studentGradeInput" class="student-select" aria-label="پایه تحصیلی">
+                <option value="">انتخاب پایه...</option>
+                <option value="هفتم">پایه هفتم</option>
+                <option value="هشتم" selected>پایه هشتم</option>
+                <option value="نهم">پایه نهم</option>
+              </select>
+              <select id="studentClassInput" class="student-select" aria-label="شعبه کلاس">
+                <option value="">انتخاب شعبه...</option>
+                <option value="1">شعبه ۱</option>
+                <option value="2">شعبه ۲</option>
+                <option value="3">شعبه ۳</option>
+                <option value="4">شعبه ۴</option>
+                <option value="5">شعبه ۵</option>
+                <option value="6">شعبه ۶</option>
+                <option value="7">شعبه ۷</option>
+                <option value="8">شعبه ۸</option>
+              </select>
+            </div>
+            <button type="button" id="submitResultBtn" class="submit-result-btn" onclick="handleSubmitResult()">📤 ارسال نتیجه آزمون</button>
+            <div id="submitStatusMsg" class="submit-status-msg"></div>
+          </div>
+        </div>
+
+        <div class="analysis-list">
+          ${analysisHTML}
+        </div>
+      `;
+    }
+
+    function initApp() {
+      resizeSnowCanvas();
+      initSnowflakes();
+      startSnowLoop();
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initApp);
+    } else {
+      initApp();
+    }
+
+let lastQuizResult = null;
+    let hasSubmittedResult = false;
+
+    function sendResultToSheet(payload) {
+      const scriptURL = "https://script.google.com/macros/s/AKfycbw8wCY98AguIZ-sFCGaoM2EyOatSZCpZT_JbgG4FfYueR9il10pQXyqw4MBw3b9cH8T/exec";
+
+      return fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: {
+          "Content-Type": "text/plain"
+        },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    function handleSubmitResult() {
+      if (hasSubmittedResult || !lastQuizResult) return;
+
+      const nameInput = document.getElementById("studentNameInput");
+      const gradeInput = document.getElementById("studentGradeInput");
+      const classInput = document.getElementById("studentClassInput");
+      const btn = document.getElementById("submitResultBtn");
+      const statusMsg = document.getElementById("submitStatusMsg");
+
+      const studentName = nameInput ? nameInput.value.trim() : "";
+      const studentGrade = gradeInput ? gradeInput.value.trim() : "";
+      const studentClass = classInput ? classInput.value.trim() : "";
+
+      if (studentName.length < 2) {
+        if (statusMsg) {
+          statusMsg.style.color = "#fca5a5";
+          statusMsg.textContent = "⚠️ لطفاً ابتدا نام و نام خانوادگی خود را وارد کنید.";
+        }
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      if (!studentGrade) {
+        if (statusMsg) {
+          statusMsg.style.color = "#fca5a5";
+          statusMsg.textContent = "⚠️ لطفاً پایه تحصیلی خود را انتخاب کنید.";
+        }
+        if (gradeInput) gradeInput.focus();
+        return;
+      }
+
+      if (!studentClass) {
+        if (statusMsg) {
+          statusMsg.style.color = "#fca5a5";
+          statusMsg.textContent = "⚠️ لطفاً شعبه کلاس خود را انتخاب کنید.";
+        }
+        if (classInput) classInput.focus();
+        return;
+      }
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "⏳ در حال ارسال...";
+      }
+      if (nameInput) nameInput.disabled = true;
+      if (gradeInput) gradeInput.disabled = true;
+      if (classInput) classInput.disabled = true;
+      if (statusMsg) {
+        statusMsg.style.color = "#fde047";
+        statusMsg.textContent = "در حال ثبت نتیجه در سامانه...";
+      }
+
+      const payload = {
+        name: studentName,
+        grade: studentGrade,
+        classSection: studentClass,
+        score20: lastQuizResult.scoreOutOf20,
+        points: lastQuizResult.playerScore,
+        correct: lastQuizResult.correctCount,
+        enemyHits: lastQuizResult.enemyHits,
+        total: lastQuizResult.total,
+        status: lastQuizResult.status
+      };
+
+      sendResultToSheet(payload)
+        .then(() => {
+          hasSubmittedResult = true;
+          if (btn) btn.textContent = "✅ ارسال شد";
+          if (statusMsg) {
+            statusMsg.style.color = "#86efac";
+            statusMsg.textContent = "✅ نتیجه آزمون با موفقیت ثبت شد.";
+          }
+        })
+        .catch(() => {
+          if (btn) {
+            btn.disabled = false;
+            btn.textContent = "📤 ارسال نتیجه آزمون";
+          }
+          if (nameInput) nameInput.disabled = false;
+          if (gradeInput) gradeInput.disabled = false;
+          if (classInput) classInput.disabled = false;
+          if (statusMsg) {
+            statusMsg.style.color = "#fca5a5";
+            statusMsg.textContent = "❌ خطا در ارسال! اتصال اینترنت را بررسی کرده و دوباره تلاش کنید.";
+          }
+        });
+    }
+    window.handleSubmitResult = handleSubmitResult;
+  </script>
+</body>
+</html>
