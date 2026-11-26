@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-   <title>یادگیری زبان عربی</title>
+  <title>دوئل آنلاین کمانداران | یادگیری زبان عربی</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap');
 
@@ -22,6 +22,11 @@
       padding: 0;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
+    }
+
+    input {
+      user-select: text;
+      -webkit-user-select: text;
     }
 
     html, body {
@@ -107,12 +112,12 @@
       background: rgba(18, 28, 40, 0.92);
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: 11px;
-      padding: clamp(4px, 0.9vh, 6px) 8px;
+      padding: clamp(4px, 0.9vh, 6px) 7px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       gap: 4px;
-      font-size: clamp(10.5px, 2.8vw, 13px);
+      font-size: clamp(10px, 2.6vw, 12.5px);
       flex-shrink: 0;
     }
 
@@ -120,7 +125,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 8px;
+      padding: 3px 7px;
       border-radius: 8px;
       font-weight: 700;
       white-space: nowrap;
@@ -132,9 +137,36 @@
       color: #ffd6d6;
     }
 
+    .hud-opponent {
+      background: rgba(0, 119, 182, 0.42);
+      border: 1px solid rgba(144, 224, 239, 0.55);
+      color: #caf0f8;
+      display: none;
+    }
+
+    .hud-opponent.show {
+      display: flex;
+    }
+
     .hud-progress {
       background: rgba(255, 255, 255, 0.16);
       color: #ffffff;
+    }
+
+    .hud-timer {
+      color: #fde047;
+      font-weight: 900;
+      margin-right: 3px;
+    }
+
+    .hud-timer.urgent {
+      color: #ff6b6b;
+      animation: pulseText 0.6s infinite alternate;
+    }
+
+    @keyframes pulseText {
+      from { opacity: 1; }
+      to { opacity: 0.45; }
     }
 
     .sound-toggle-btn {
@@ -168,7 +200,7 @@
 
     .archer-unit {
       position: relative;
-      width: clamp(72px, 20vw, 106px);
+      width: clamp(72px, 22vw, 118px);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -193,33 +225,15 @@
     }
 
     @keyframes fallDownEnemy {
-      0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-        opacity: 1;
-      }
-      22% {
-        transform: translate3d(-10px, 14px, 0) rotate(-18deg);
-        opacity: 0.96;
-      }
-      100% {
-        transform: translate3d(-26px, 360px, 0) rotate(-68deg);
-        opacity: 0;
-      }
+      0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+      22% { transform: translate3d(-10px, 14px, 0) rotate(-18deg); opacity: 0.96; }
+      100% { transform: translate3d(-26px, 360px, 0) rotate(-68deg); opacity: 0; }
     }
 
     @keyframes fallDownPlayer {
-      0% {
-        transform: translate3d(0, 0, 0) rotate(0deg);
-        opacity: 1;
-      }
-      22% {
-        transform: translate3d(10px, 14px, 0) rotate(18deg);
-        opacity: 0.96;
-      }
-      100% {
-        transform: translate3d(26px, 360px, 0) rotate(68deg);
-        opacity: 0;
-      }
+      0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+      22% { transform: translate3d(10px, 14px, 0) rotate(18deg); opacity: 0.96; }
+      100% { transform: translate3d(26px, 360px, 0) rotate(68deg); opacity: 0; }
     }
 
     .archer-fall-enemy {
@@ -237,6 +251,9 @@
       border-radius: 999px;
       margin-bottom: 2px;
       white-space: nowrap;
+      max-width: 118px;
+      overflow: hidden;
+      text-overflow: ellipsis;
       direction: rtl;
     }
 
@@ -344,7 +361,7 @@
       align-items: center;
       justify-content: center;
       width: 100%;
-      padding-bottom: clamp(16px, 3.5vh, 42px);
+      padding-bottom: clamp(12px, 2.8vh, 32px);
       min-height: 0;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -381,51 +398,179 @@
       background: var(--card-bg);
       border: 1.5px solid rgba(255, 255, 255, 0.28);
       border-radius: 16px;
-      padding: clamp(12px, 2.4vh, 20px) clamp(12px, 3.5vw, 16px);
+      padding: clamp(11px, 2vh, 18px) clamp(12px, 3.5vw, 16px);
       text-align: center;
       box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
     }
 
     .game-title {
-      font-size: clamp(18px, 4.8vw, 25px);
+      font-size: clamp(17px, 4.6vw, 23px);
       font-weight: 900;
       color: #ffffff;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
     }
 
     .rules-list {
-      background: rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 11px;
-      padding: clamp(8px, 1.6vh, 11px) 10px;
-      margin: clamp(8px, 1.8vh, 14px) 0 clamp(10px, 2vh, 16px);
+      padding: clamp(7px, 1.3vh, 10px) 10px;
+      margin: clamp(7px, 1.4vh, 11px) 0;
       text-align: right;
-      font-size: clamp(11.5px, 3.1vw, 13.5px);
-      line-height: 1.65;
+      font-size: clamp(11px, 2.9vw, 12.8px);
+      line-height: 1.6;
       color: #eef8fc;
     }
 
     .rules-list div {
+      margin-bottom: 3px;
+    }
+
+    .student-form {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin: 8px 0 10px;
+      text-align: right;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 7px;
+    }
+
+    .text-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1.5px solid rgba(144, 224, 239, 0.45);
+      border-radius: 10px;
+      padding: 8px 10px;
+      color: #ffffff;
+      font-family: inherit;
+      font-size: clamp(12px, 3.2vw, 13.5px);
+      font-weight: 600;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .text-input::placeholder {
+      color: rgba(205, 235, 247, 0.72);
+      font-weight: 400;
+    }
+
+    .text-input:focus {
+      border-color: #fde047;
+      background: rgba(255, 255, 255, 0.18);
+    }
+
+    select.text-input {
+      cursor: pointer;
+    }
+
+    select.text-input option {
+      background-color: #101e30;
+      color: #ffffff;
+    }
+
+    .form-error {
+      color: #fda4af;
+      font-size: 11.5px;
+      font-weight: 700;
+      min-height: 16px;
+      text-align: center;
       margin-bottom: 4px;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
     }
 
     .primary-btn {
       position: relative;
       z-index: 50;
+      width: 100%;
       background: linear-gradient(135deg, #e63946, #b51724);
       color: #ffffff;
       border: 2px solid rgba(255, 255, 255, 0.38);
-      padding: clamp(9px, 1.8vh, 12px) clamp(20px, 5vw, 26px);
+      padding: clamp(9px, 1.6vh, 11px) 16px;
       border-radius: 12px;
       font-family: inherit;
-      font-size: clamp(13.5px, 3.6vw, 16px);
+      font-size: clamp(13px, 3.5vw, 15px);
       font-weight: 800;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(214, 40, 40, 0.4);
+      transition: transform 0.14s ease, opacity 0.14s ease;
+    }
+
+    .secondary-btn {
+      position: relative;
+      z-index: 50;
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7, #0369a1);
+      color: #ffffff;
+      border: 1.5px solid rgba(186, 230, 253, 0.45);
+      padding: clamp(7px, 1.3vh, 9px) 16px;
+      border-radius: 11px;
+      font-family: inherit;
+      font-size: clamp(12px, 3.2vw, 13.5px);
+      font-weight: 700;
+      cursor: pointer;
       transition: transform 0.14s ease;
     }
 
-    .primary-btn:active {
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.14);
+      color: #ffe4e6;
+      border: 1.5px solid rgba(255, 143, 163, 0.5);
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .primary-btn:active, .secondary-btn:active, .cancel-btn:active {
       transform: scale(0.97);
+    }
+
+    .primary-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Waiting radar animation */
+    .radar-ring {
+      width: 66px;
+      height: 66px;
+      margin: 10px auto 12px;
+      border-radius: 50%;
+      background: rgba(56, 189, 248, 0.2);
+      border: 2.5px solid #38bdf8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      animation: radarPulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes radarPulse {
+      0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.65); transform: scale(0.96); }
+      70% { box-shadow: 0 0 0 18px rgba(56, 189, 248, 0); transform: scale(1.04); }
+      100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); transform: scale(0.96); }
+    }
+
+    .waiting-info {
+      background: rgba(255, 255, 255, 0.09);
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 8px 0;
+      font-size: 12.5px;
+      color: #e0f2fe;
+      line-height: 1.7;
     }
 
     .question-card {
@@ -517,6 +662,12 @@
       cursor: default;
     }
 
+    .option-btn.selected-wait {
+      background: #0369a1 !important;
+      border-color: #fde047 !important;
+      color: #fef08a !important;
+    }
+
     .option-btn.correct-ans {
       background: #1b8a4b !important;
       border-color: #69f0ae !important;
@@ -546,15 +697,21 @@
     }
 
     .feedback-ok {
-      background: rgba(27, 138, 75, 0.72);
+      background: rgba(27, 138, 75, 0.78);
       color: #d1fae5;
       border: 1px solid rgba(105, 240, 174, 0.55);
     }
 
     .feedback-err {
-      background: rgba(193, 18, 31, 0.72);
+      background: rgba(193, 18, 31, 0.78);
       color: #ffe4e6;
       border: 1px solid rgba(255, 143, 163, 0.55);
+    }
+
+    .feedback-wait {
+      background: rgba(3, 105, 161, 0.82);
+      color: #fef08a;
+      border: 1px solid rgba(253, 224, 71, 0.55);
     }
 
     .flying-arrow {
@@ -673,102 +830,6 @@
       text-overflow: ellipsis;
     }
 
-        .submit-result-box {
-      margin-top: 12px;
-      padding-top: 10px;
-      border-top: 1px dashed rgba(255, 255, 255, 0.25);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: center;
-      direction: rtl;
-    }
-
-    .student-name-input {
-      width: 100%;
-      max-width: 280px;
-      padding: 8px 12px;
-      border-radius: 10px;
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      background: rgba(255, 255, 255, 0.12);
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      text-align: center;
-      outline: none;
-      -webkit-user-select: text;
-      user-select: text;
-    }
-
-    .student-name-input::placeholder {
-      color: rgba(255, 255, 255, 0.68);
-    }
-
-    .student-name-input:focus,
-    .student-select:focus {
-      border-color: #38bdf8;
-      background: rgba(255, 255, 255, 0.18);
-    }
-
-    .student-class-row {
-      width: 100%;
-      max-width: 280px;
-      display: flex;
-      gap: 6px;
-      direction: rtl;
-    }
-
-    .student-class-row .student-select {
-      flex: 1;
-      padding: 8px 6px;
-      border-radius: 10px;
-      border: 1.5px solid rgba(255, 255, 255, 0.4);
-      background: rgba(16, 34, 56, 0.92);
-      color: #ffffff;
-      font-family: inherit;
-      font-size: 12.5px;
-      font-weight: 700;
-      text-align: center;
-      outline: none;
-      cursor: pointer;
-    }
-
-    .student-class-row .student-select option {
-      background: #102238;
-      color: #ffffff;
-    }
-
-    .submit-result-btn {
-      background: linear-gradient(135deg, #16a34a, #15803d);
-      color: #ffffff;
-      border: 2px solid rgba(255, 255, 255, 0.35);
-      padding: 8px 20px;
-      border-radius: 10px;
-      font-family: inherit;
-      font-size: 13.5px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.35);
-      transition: transform 0.14s ease, opacity 0.2s ease;
-    }
-
-    .submit-result-btn:active:not(:disabled) {
-      transform: scale(0.97);
-    }
-
-    .submit-result-btn:disabled {
-      opacity: 0.65;
-      cursor: default;
-    }
-
-    .submit-status-msg {
-      font-size: 12px;
-      font-weight: 700;
-      min-height: 18px;
-      color: #fde047;
-    }
-
     @media (max-height: 580px) {
       .archers-stage {
         height: 76px;
@@ -839,17 +900,21 @@
       <header style="width: 100%; flex-shrink: 0;">
         <div class="hud-bar" id="hudBar">
           <div class="hud-pill hud-player">
-            <span>🏹 شما:</span>
-            <span id="playerScoreText">۰ امتیاز</span>
+            <span>🏹</span>
+            <span id="playerScoreText">۰</span>
           </div>
           <div class="hud-pill hud-progress" id="progressText">آماده نبرد</div>
+          <div class="hud-pill hud-opponent" id="opponentHudPill">
+            <span>🎯 حریف:</span>
+            <span id="opponentScoreText">۰</span>
+          </div>
           <button type="button" id="soundToggleBtn" class="sound-toggle-btn" onclick="toggleSound()" title="قطع/وصل صدا" aria-label="قطع یا وصل صدا">🔊</button>
         </div>
 
         <div class="archers-stage">
           <div class="float-wrapper float-delay">
             <div class="archer-unit" id="leftArcherBox">
-              <div class="archer-badge badge-blue">حریف</div>
+              <div class="archer-badge badge-blue" id="leftArcherName">حریف</div>
               <svg class="archer-svg" id="leftArcherSvg" viewBox="0 0 110 115">
                 <path d="M16,102 L94,102 L88,112 L22,112 Z" fill="#151a26" stroke="#0d1117" stroke-width="1.5" />
                 <path d="M13,96 Q55,93 97,96 L97,104 L83,104 Q79,109 75,104 L57,104 Q53,110 49,104 L31,104 Q27,108 23,104 L13,104 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
@@ -887,7 +952,7 @@
 
           <div class="float-wrapper">
             <div class="archer-unit" id="rightArcherBox">
-              <div class="archer-badge badge-red">شما</div>
+              <div class="archer-badge badge-red" id="rightArcherName">شما</div>
               <svg class="archer-svg" id="rightArcherSvg" viewBox="0 0 110 115">
                 <path d="M16,102 L94,102 L88,112 L22,112 Z" fill="#151a26" stroke="#0d1117" stroke-width="1.5" />
                 <path d="M13,96 Q55,93 97,96 L97,104 L83,104 Q79,109 75,104 L57,104 Q53,110 49,104 L31,104 Q27,108 23,104 L13,104 Z" fill="#ffffff" stroke="#1e293b" stroke-width="1.4" />
@@ -926,21 +991,56 @@
       </header>
 
       <main class="main-area">
+        <!-- صفحه شروع -->
         <section id="startScreen" class="screen active">
           <div class="card-box">
-            <h1 class="game-title">🏹 یادگیری زبان عربی ❄️</h1>
-            <p style="color: #cdebf7; font-size: clamp(12px, 3.2vw, 14px);">آزمون تعاملی زبان عربی پایه هشتم درس چهارم</p>
+            <h1 class="game-title">🏹 دوئل کمانداران عربی ❄️</h1>
+            <p style="color: #cdebf7; font-size: clamp(11.5px, 3vw, 13.5px);">زبان عربی پایه هشتم — درس چهارم</p>
 
             <div class="rules-list">
-              <div>🎯 هر پاسخ درست یعنی یک تیر دقیق به هدف و یک گام برای رسیدن به موفقیت.</div>
-              <div>🛡️ پاسخ اشتباه به حریف فرصت شلیک می‌دهد؛ با دقت واژه‌ها را بسنجید.</div>
-              <div>📊 پایان بازی، کارنامه و توضیحات هر واژه آماده مرور است.</div>
+              <div>⚔️ <strong>دوئل آنلاین:</strong> با یک هم‌کلاسی همزمان به ۱۵ سؤال پاسخ دهید؛ هر پاسخ درست یک تیر به سمت رقیب است!</div>
+              <div>🏆 در پایان نبرد، کماندار بازنده سقوط می‌کند و کارنامه کامل نمایش داده می‌شود.</div>
             </div>
 
-            <button type="button" id="startBtn" class="primary-btn" onclick="startGame()">شروع آزمون 15 سؤالی 🎯</button>
+            <div class="student-form">
+              <div class="form-row">
+                <input type="text" id="studentNameInput" class="text-input" placeholder="نام و نام خانوادگی (مثلاً: علی محمدی)" maxlength="28" autocomplete="name" />
+                <select id="studentClassInput" class="text-input" style="max-width: 122px;" aria-label="انتخاب شعبه کلاس">
+                  <option value="" disabled selected>شعبه کلاس</option>
+                  <option value="شعبه ۱">شعبه ۱</option>
+                  <option value="شعبه ۲">شعبه ۲</option>
+                  <option value="شعبه ۳">شعبه ۳</option>
+                  <option value="شعبه ۴">شعبه ۴</option>
+                  <option value="شعبه ۵">شعبه ۵</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-error" id="formErrorText"></div>
+
+            <div class="btn-group">
+              <button type="button" id="startDuelBtn" class="primary-btn" onclick="startOnlineDuel()">⚔️ شروع دوئل آنلاین (دونفره)</button>
+              <button type="button" id="startBtn" class="secondary-btn" onclick="startSinglePlayer()">🎯 تمرین تک‌نفره (آفلاین)</button>
+            </div>
           </div>
         </section>
 
+        <!-- صفحه انتظار برای حریف -->
+        <section id="waitingScreen" class="screen">
+          <div class="card-box">
+            <div class="radar-ring">🏹</div>
+            <h2 class="game-title" style="font-size: clamp(16px, 4.3vw, 20px);">در انتظار ورود حریف...</h2>
+            <p style="color: #bae6fd; font-size: 12.5px; margin-top: 4px;">به محض ورود هم‌کلاسی بعدی، دوئل خودکار شروع می‌شود!</p>
+
+            <div class="waiting-info">
+              <div>👤 نام شما: <strong id="waitPlayerName">—</strong></div>
+              <div>⏱ زمان انتظار: <strong id="waitTimerText">۰ ثانیه</strong></div>
+            </div>
+
+            <button type="button" class="cancel-btn" onclick="cancelOnlineWait()">❌ انصراف و بازگشت</button>
+          </div>
+        </section>
+
+        <!-- صفحه بازی -->
         <section id="gameScreen" class="screen">
           <div class="question-card">
             <div class="question-text" id="questionText"></div>
@@ -949,6 +1049,7 @@
           </div>
         </section>
 
+        <!-- صفحه پایان -->
         <section id="endScreen" class="screen"></section>
       </main>
 
@@ -959,7 +1060,13 @@
   </div>
 
   <script>
-    const rawQuestionData = {
+    // =========================================================================
+    // لینک وب‌اپ Google Apps Script را دقیقاً داخل گیومه زیر قرار دهید:
+    // =========================================================================
+    const DUEL_API_URL = "https://script.google.com/macros/s/AKfycbxo0Wz-a5uFBMC2Z1ldG2jRKox1B__IWFK5swMyNEN1ZECnjGHD-1aKLtQyQ2dF6sXO/exec";
+    // =========================================================================
+
+const rawQuestionData = {
   "questions": [
     {
       "question": "معنای دقیق واژه «فِضَّة» کدام گزینه است؟",
@@ -1427,13 +1534,14 @@
   ]
 };
 
-const questionBank = rawQuestionData.questions.map(item => ({
-  q: item.question,
-  o: item.options,
-  a: item.options.indexOf(item.answer),
-  exp: item.explanation
-}));
+    const questionBank = rawQuestionData.questions.map(item => ({
+      q: item.question,
+      o: item.options,
+      a: item.options.indexOf(item.answer),
+      exp: item.explanation
+    }));
 
+    // --- Snow & Arrow Trails ---
     const snowCanvas = document.getElementById("snowCanvas");
     const snowCtx = snowCanvas ? snowCanvas.getContext("2d") : null;
     const trailCanvas = document.getElementById("trailCanvas");
@@ -1448,7 +1556,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
 
     function resizeSnowCanvas() {
       const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-
       if (snowCanvas && snowCtx) {
         const shell = snowCanvas.parentElement;
         snowWidth = shell ? shell.clientWidth : window.innerWidth;
@@ -1457,7 +1564,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
         snowCanvas.height = Math.round(snowHeight * dpr);
         snowCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
       }
-
       if (trailCanvas && trailCtx) {
         const w = window.innerWidth;
         const h = window.innerHeight;
@@ -1511,12 +1617,9 @@ const questionBank = rawQuestionData.questions.map(item => ({
     function runConfettiCelebration(durationMs = 2800) {
       if (!snowCanvas || !snowCtx || snowWidth <= 0 || snowHeight <= 0) return;
       stopConfetti();
-
       const colors = ["#fde047", "#4ade80", "#38bdf8", "#fb7185", "#c084fc", "#fb923c"];
       const pieces = [];
-      const count = 60;
-
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < 60; i++) {
         pieces.push({
           x: Math.random() * snowWidth,
           y: -15 - Math.random() * 140,
@@ -1530,17 +1633,11 @@ const questionBank = rawQuestionData.questions.map(item => ({
           phase: Math.random() * Math.PI * 2
         });
       }
-
       const startTime = performance.now();
-
       function frame(now) {
         const elapsed = now - startTime;
-        const fadeAlpha = elapsed > durationMs - 650
-          ? Math.max(0, (durationMs - elapsed) / 650)
-          : 1;
-
+        const fadeAlpha = elapsed > durationMs - 650 ? Math.max(0, (durationMs - elapsed) / 650) : 1;
         snowCtx.clearRect(0, 0, snowWidth, snowHeight);
-
         if (elapsed < durationMs) {
           for (let i = 0; i < pieces.length; i++) {
             const p = pieces[i];
@@ -1548,12 +1645,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
             p.phase += 0.06;
             p.x += p.driftX + Math.sin(p.phase) * 0.6;
             p.rotation += p.rotSpeed;
-
-            if (p.y > snowHeight + 12) {
-              p.y = -10;
-              p.x = Math.random() * snowWidth;
-            }
-
+            if (p.y > snowHeight + 12) { p.y = -10; p.x = Math.random() * snowWidth; }
             snowCtx.save();
             snowCtx.globalAlpha = fadeAlpha;
             snowCtx.translate(p.x, p.y);
@@ -1568,13 +1660,11 @@ const questionBank = rawQuestionData.questions.map(item => ({
           confettiAnimId = null;
         }
       }
-
       confettiAnimId = requestAnimationFrame(frame);
     }
 
     function animateSnow() {
       if (!isSnowRunning) return;
-
       if (snowCanvas && snowCtx && snowWidth > 0 && snowHeight > 0) {
         snowCtx.clearRect(0, 0, snowWidth, snowHeight);
         for (let i = 0; i < snowflakes.length; i++) {
@@ -1582,58 +1672,45 @@ const questionBank = rawQuestionData.questions.map(item => ({
           f.y += f.speedY;
           f.phase += 0.018;
           f.x += f.driftX + Math.sin(f.phase) * 0.25;
-
-          if (f.y > snowHeight + 5) {
-            f.y = -5;
-            f.x = Math.random() * snowWidth;
-          }
+          if (f.y > snowHeight + 5) { f.y = -5; f.x = Math.random() * snowWidth; }
           if (f.x > snowWidth + 5) f.x = -5;
           if (f.x < -5) f.x = snowWidth + 5;
-
           snowCtx.beginPath();
           snowCtx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
           snowCtx.fillStyle = `rgba(255, 255, 255, ${f.opacity})`;
           snowCtx.fill();
         }
       }
-
       if (activeArrowTrails.length > 0) {
         renderArrowTrails();
       } else if (trailCanvas && trailCtx) {
         trailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       }
-
       snowAnimId = requestAnimationFrame(animateSnow);
     }
 
     function renderArrowTrails() {
       if (!trailCanvas || !trailCtx) return;
       trailCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
       const now = performance.now();
-
       for (let tIdx = activeArrowTrails.length - 1; tIdx >= 0; tIdx--) {
         const trail = activeArrowTrails[tIdx];
         trail.points = trail.points.filter(p => now - p.time < trail.maxAge);
-
         if (trail.points.length >= 2) {
           trailCtx.save();
           trailCtx.lineCap = "round";
           trailCtx.lineJoin = "round";
-
           for (let i = 1; i < trail.points.length; i++) {
             const p0 = trail.points[i - 1];
             const p1 = trail.points[i];
             const lifeRatio = 1 - (now - p1.time) / trail.maxAge;
             if (lifeRatio <= 0) continue;
-
             trailCtx.beginPath();
             trailCtx.moveTo(p0.x, p0.y);
             trailCtx.lineTo(p1.x, p1.y);
             trailCtx.strokeStyle = `rgba(${trail.rgb}, ${(lifeRatio * 0.75).toFixed(2)})`;
             trailCtx.lineWidth = Math.max(0.6, lifeRatio * 4);
             trailCtx.stroke();
-
             trailCtx.beginPath();
             trailCtx.moveTo(p0.x, p0.y);
             trailCtx.lineTo(p1.x, p1.y);
@@ -1643,24 +1720,17 @@ const questionBank = rawQuestionData.questions.map(item => ({
           }
           trailCtx.restore();
         }
-
         for (let sIdx = trail.sparks.length - 1; sIdx >= 0; sIdx--) {
           const sp = trail.sparks[sIdx];
           sp.x += sp.vx;
           sp.y += sp.vy;
           sp.alpha -= 0.036;
-
-          if (sp.alpha <= 0) {
-            trail.sparks.splice(sIdx, 1);
-            continue;
-          }
-
+          if (sp.alpha <= 0) { trail.sparks.splice(sIdx, 1); continue; }
           trailCtx.beginPath();
           trailCtx.arc(sp.x, sp.y, sp.r, 0, Math.PI * 2);
           trailCtx.fillStyle = `rgba(${trail.coreRgb}, ${sp.alpha.toFixed(2)})`;
           trailCtx.fill();
         }
-
         if (trail.finished && trail.points.length === 0 && trail.sparks.length === 0) {
           activeArrowTrails.splice(tIdx, 1);
         }
@@ -1670,10 +1740,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
     let resizeTimer = null;
     window.addEventListener("resize", () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        resizeSnowCanvas();
-        initSnowflakes();
-      }, 150);
+      resizeTimer = setTimeout(() => { resizeSnowCanvas(); initSnowflakes(); }, 150);
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -1684,6 +1751,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
       }
     });
 
+    // --- Sound Engine ---
     let audioCtx = null;
     let isSoundEnabled = true;
 
@@ -1711,8 +1779,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
         const ctx = getAudioCtx();
         if (!ctx) return;
         const now = ctx.currentTime;
-        const startNotes = [440, 554.37, 659.25];
-        startNotes.forEach((freq, idx) => {
+        [440, 554.37, 659.25].forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "triangle";
@@ -1738,10 +1805,8 @@ const questionBank = rawQuestionData.questions.map(item => ({
         osc.type = "triangle";
         osc.frequency.setValueAtTime(520, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(160, ctx.currentTime + 0.22);
-
         gain.gain.setValueAtTime(0.18, ctx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
-
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
@@ -1755,36 +1820,27 @@ const questionBank = rawQuestionData.questions.map(item => ({
         const ctx = getAudioCtx();
         if (!ctx) return;
         const now = ctx.currentTime;
-
         if (isGood) {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = "sine";
           osc.frequency.setValueAtTime(580, now);
           osc.frequency.exponentialRampToValueAtTime(880, now + 0.18);
-
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
-
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start(now);
           osc.stop(now + 0.2);
         } else {
-          const notes = [
-            { freq: 310, start: 0, dur: 0.14 },
-            { freq: 215, start: 0.12, dur: 0.24 }
-          ];
-          notes.forEach(n => {
+          [{ freq: 310, start: 0, dur: 0.14 }, { freq: 215, start: 0.12, dur: 0.24 }].forEach(n => {
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = "triangle";
             osc.frequency.setValueAtTime(n.freq, now + n.start);
             osc.frequency.exponentialRampToValueAtTime(n.freq * 0.86, now + n.start + n.dur);
-
             gain.gain.setValueAtTime(0.22, now + n.start);
             gain.gain.exponentialRampToValueAtTime(0.001, now + n.start + n.dur);
-
             osc.connect(gain);
             gain.connect(ctx.destination);
             osc.start(now + n.start);
@@ -1799,30 +1855,24 @@ const questionBank = rawQuestionData.questions.map(item => ({
       try {
         const ctx = getAudioCtx();
         if (!ctx) return;
-
         const now = ctx.currentTime;
         const dur = 1.65;
-
         const osc = ctx.createOscillator();
         osc.type = "triangle";
         osc.frequency.setValueAtTime(520, now);
         osc.frequency.linearRampToValueAtTime(760, now + 0.08);
         osc.frequency.exponentialRampToValueAtTime(190, now + dur);
-
         const lp = ctx.createBiquadFilter();
         lp.type = "lowpass";
         lp.frequency.setValueAtTime(2200, now);
         lp.frequency.exponentialRampToValueAtTime(650, now + dur);
-
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0.001, now);
         gain.gain.linearRampToValueAtTime(0.28, now + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.001, now + dur);
-
         osc.connect(lp);
         lp.connect(gain);
         gain.connect(ctx.destination);
-
         osc.start(now);
         osc.stop(now + dur + 0.04);
       } catch (e) {}
@@ -1850,17 +1900,44 @@ const questionBank = rawQuestionData.questions.map(item => ({
       } catch (e) {}
     }
 
+    // --- Core Game State ---
     const TOTAL_QUESTIONS = 15;
+    const QUESTION_DURATION_MS = 25000; // 25 ثانیه برای هر سؤال در حالت آنلاین
+
+    let gameMode = "single"; // "single" | "duel"
     let quizQuestions = [];
     let currentIndex = 0;
     let playerScore = 0;
+    let opponentScore = 0;
     let enemyHits = 0;
     let playerHP = TOTAL_QUESTIONS;
     let enemyHP = TOTAL_QUESTIONS;
     let userHistory = [];
     let isAnimating = false;
 
-    // Footer integrity guard: any edit/removal/replacement locks the quiz.
+    // --- Online Duel State ---
+    let myPlayerId = "";
+    let myName = "";
+    let myClass = "";
+    let duelRoomId = "";
+    let myRole = ""; // "p1" | "p2"
+    let oppRole = ""; // "p2" | "p1"
+    let oppName = "حریف";
+    let oppClass = "";
+    let waitPollTimer = null;
+    let waitClockTimer = null;
+    let waitStartMs = 0;
+    let roomPollTimer = null;
+    let countdownTimer = null;
+    let isPollingNow = false;
+    let serverTimeOffset = 0;
+    let lastRenderedRound = -1;
+    let lastResolvedRound = -1;
+    let mySelectedForRound = {}; // round -> selectedIdx
+    let duelFinishedTriggered = false;
+    let currentRoundStartTime = 0;
+
+    // --- Footer Integrity Guard ---
     const FOOTER_TEXT = "تهیه کننده: اسماعیل قاضی‌نیا | دبیر دینی و عربی شهرستان بوکان";
     const originalFooter = document.querySelector(".ui-layer > footer");
     const originalFooterMarkup = originalFooter ? originalFooter.outerHTML : "";
@@ -1871,6 +1948,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
       footerTampered = true;
       document.documentElement.dataset.footerLocked = "1";
       isAnimating = true;
+      stopAllDuelTimers();
       const q = document.getElementById("questionText");
       const options = document.getElementById("optionsContainer");
       const feedback = document.getElementById("feedbackBanner");
@@ -1884,7 +1962,9 @@ const questionBank = rawQuestionData.questions.map(item => ({
         feedback.textContent = "برای ادامه، فایل اصلی و دست‌نخورده آزمون را اجرا کنید.";
       }
       const start = document.getElementById("startBtn");
+      const duelBtn = document.getElementById("startDuelBtn");
       if (start) start.disabled = true;
+      if (duelBtn) duelBtn.disabled = true;
       switchScreen("gameScreen");
     }
 
@@ -1907,6 +1987,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
       lockQuizForFooterTampering();
     }
 
+    // --- Helpers ---
     function toPersianNum(num) {
       return String(num).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
     }
@@ -1920,10 +2001,22 @@ const questionBank = rawQuestionData.questions.map(item => ({
       return copy;
     }
 
+    function generatePlayerId() {
+      return "P_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8);
+    }
+
     function switchScreen(screenId) {
       document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
       const target = document.getElementById(screenId);
       if (target) target.classList.add("active");
+    }
+
+    function stopAllDuelTimers() {
+      if (waitPollTimer) { clearInterval(waitPollTimer); waitPollTimer = null; }
+      if (waitClockTimer) { clearInterval(waitClockTimer); waitClockTimer = null; }
+      if (roomPollTimer) { clearInterval(roomPollTimer); roomPollTimer = null; }
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+      isPollingNow = false;
     }
 
     function resetArchersFallState() {
@@ -1949,10 +2042,7 @@ const questionBank = rawQuestionData.questions.map(item => ({
         void targetEl.offsetWidth;
         targetEl.classList.add(targetSide === "enemy" ? "archer-fall-enemy" : "archer-fall-player");
       } catch (e) {}
-
-      try {
-        playDeepFallSound();
-      } catch (e) {}
+      try { playDeepFallSound(); } catch (e) {}
     }
 
     function updateHealthBar(barId, currentHp, maxHp) {
@@ -1960,69 +2050,324 @@ const questionBank = rawQuestionData.questions.map(item => ({
       const percent = Math.round((safeHp / maxHp) * 100);
       const barEl = document.getElementById(barId);
       if (!barEl) return;
-
       barEl.style.width = `${percent}%`;
       barEl.classList.remove("hp-medium", "hp-low");
-      if (percent <= 30) {
-        barEl.classList.add("hp-low");
-      } else if (percent <= 60) {
-        barEl.classList.add("hp-medium");
-      }
+      if (percent <= 30) barEl.classList.add("hp-low");
+      else if (percent <= 60) barEl.classList.add("hp-medium");
     }
 
-    function updateScoreUI(isPlaying) {
+    function updateScoreUI(isPlaying, remainingSec = null) {
       const scoreEl = document.getElementById("playerScoreText");
+      const oppPill = document.getElementById("opponentHudPill");
+      const oppScoreEl = document.getElementById("opponentScoreText");
       const progressEl = document.getElementById("progressText");
-      if (scoreEl) scoreEl.textContent = `${toPersianNum(playerScore)} امتیاز`;
+
+      if (scoreEl) {
+        scoreEl.textContent = gameMode === "duel"
+          ? `${toPersianNum(playerScore)}`
+          : `شما: ${toPersianNum(playerScore)} امتیاز`;
+      }
+
+      if (oppPill && oppScoreEl) {
+        if (gameMode === "duel" && isPlaying) {
+          oppPill.classList.add("show");
+          oppScoreEl.textContent = toPersianNum(opponentScore);
+        } else {
+          oppPill.classList.remove("show");
+        }
+      }
+
       if (progressEl) {
-        progressEl.textContent = isPlaying
-          ? `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))} از ${toPersianNum(TOTAL_QUESTIONS)}`
-          : "آماده نبرد";
+        if (!isPlaying) {
+          progressEl.textContent = "آماده نبرد";
+        } else if (gameMode === "duel" && remainingSec !== null) {
+          const urgentClass = remainingSec <= 6 ? " urgent" : "";
+          progressEl.innerHTML = `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))}/${toPersianNum(TOTAL_QUESTIONS)} <span class="hud-timer${urgentClass}">⏱ ${toPersianNum(remainingSec)}</span>`;
+        } else {
+          progressEl.textContent = `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))} از ${toPersianNum(TOTAL_QUESTIONS)}`;
+        }
       }
 
       updateHealthBar("rightHpBar", playerHP, TOTAL_QUESTIONS);
       updateHealthBar("leftHpBar", enemyHP, TOTAL_QUESTIONS);
     }
 
-    function startGame() {
+    function goToHome() {
+      stopAllDuelTimers();
+      stopConfetti();
+      startSnowLoop();
+      resetArchersFallState();
+      gameMode = "single";
+      playerScore = 0;
+      opponentScore = 0;
+      playerHP = TOTAL_QUESTIONS;
+      enemyHP = TOTAL_QUESTIONS;
+      document.getElementById("rightArcherName").textContent = "شما";
+      document.getElementById("leftArcherName").textContent = "حریف";
+      updateScoreUI(false);
+      switchScreen("startScreen");
+    }
+    window.goToHome = goToHome;
+
+    // --- API Communication with Google Apps Script ---
+    async function callDuelApi(payload) {
+      const res = await fetch(DUEL_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload),
+        redirect: "follow"
+      });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return await res.json();
+    }
+
+    // =========================================================================
+    // ONLINE DUEL MODE (Synchronized Question-by-Question)
+    // =========================================================================
+    async function startOnlineDuel() {
       if (!verifyFooterIntegrity()) return;
-      const ctx = getAudioCtx();
-      if (ctx && ctx.state === "suspended") {
-        ctx.resume().then(() => playStartSound()).catch(() => playStartSound());
-      } else {
-        playStartSound();
+      const errEl = document.getElementById("formErrorText");
+      const nameInput = document.getElementById("studentNameInput");
+      const classInput = document.getElementById("studentClassInput");
+      errEl.textContent = "";
+
+      if (!DUEL_API_URL || DUEL_API_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT")) {
+        errEl.textContent = "⚠️ لینک سرور گوگل اپس اسکریپت هنوز در فایل بازی تنظیم نشده است.";
+        return;
       }
+
+      myName = (nameInput.value || "").trim();
+      myClass = (classInput.value || "").trim();
+      if (myName.length < 2) {
+        errEl.textContent = "لطفاً ابتدا نام و نام خانوادگی خود را وارد کنید.";
+        nameInput.focus();
+        return;
+      }
+      if (!myClass) {
+        errEl.textContent = "لطفاً شعبه کلاس خود را از لیست انتخاب کنید.";
+        classInput.focus();
+        return;
+      }
+
+      try {
+        localStorage.setItem("duel_student_name", myName);
+        localStorage.setItem("duel_student_class", myClass);
+      } catch (e) {}
+
+      const duelBtn = document.getElementById("startDuelBtn");
+      duelBtn.disabled = true;
+      duelBtn.textContent = "⏳ در حال اتصال به سرور دوئل...";
+
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === "suspended") ctx.resume().catch(() => {});
+
+      myPlayerId = generatePlayerId();
+      gameMode = "duel";
+      stopAllDuelTimers();
       stopConfetti();
       startSnowLoop();
       resetArchersFallState();
 
-      quizQuestions = shuffleArray(questionBank).slice(0, TOTAL_QUESTIONS);
-      currentIndex = 0;
-      playerScore = 0;
-      enemyHits = 0;
-      playerHP = TOTAL_QUESTIONS;
-      enemyHP = TOTAL_QUESTIONS;
-      userHistory = [];
-      isAnimating = false;
+      try {
+        const data = await callDuelApi({
+          action: "join",
+          playerId: myPlayerId,
+          name: myName,
+          className: myClass,
+          bankSize: questionBank.length
+        });
 
-      updateScoreUI(true);
-      switchScreen("gameScreen");
-      renderQuestion();
+        duelBtn.disabled = false;
+        duelBtn.textContent = "⚔️ شروع دوئل آنلاین (دونفره)";
+
+        if (data.status === "matched" && data.room) {
+          enterDuelRoom(data.room, data.role, data.serverTime);
+        } else if (data.status === "waiting") {
+          enterWaitingScreen();
+        } else {
+          errEl.textContent = data.message || "خطا در اتصال به اتاق مسابقه.";
+        }
+      } catch (err) {
+        duelBtn.disabled = false;
+        duelBtn.textContent = "⚔️ شروع دوئل آنلاین (دونفره)";
+        errEl.textContent = "❌ خطا در ارتباط با سرور! اتصال اینترنت را بررسی کنید.";
+      }
     }
-    window.startGame = startGame;
+    window.startOnlineDuel = startOnlineDuel;
 
-    function renderQuestion() {
+    function enterWaitingScreen() {
+      document.getElementById("waitPlayerName").textContent = myClass ? `${myName} (${myClass})` : myName;
+      document.getElementById("rightArcherName").textContent = myName;
+      document.getElementById("leftArcherName").textContent = "در انتظار...";
+      waitStartMs = Date.now();
+      document.getElementById("waitTimerText").textContent = "۰ ثانیه";
+      switchScreen("waitingScreen");
+
+      waitClockTimer = setInterval(() => {
+        const secs = Math.floor((Date.now() - waitStartMs) / 1000);
+        const el = document.getElementById("waitTimerText");
+        if (el) el.textContent = `${toPersianNum(secs)} ثانیه`;
+      }, 1000);
+
+      waitPollTimer = setInterval(async () => {
+        if (isPollingNow) return;
+        isPollingNow = true;
+        try {
+          const data = await callDuelApi({ action: "poll_wait", playerId: myPlayerId });
+          if (data.status === "matched" && data.room) {
+            stopAllDuelTimers();
+            enterDuelRoom(data.room, data.role, data.serverTime);
+          }
+        } catch (e) {
+          // retry next tick
+        } finally {
+          isPollingNow = false;
+        }
+      }, 1600);
+    }
+
+    async function cancelOnlineWait() {
+      stopAllDuelTimers();
+      try {
+        if (myPlayerId && DUEL_API_URL && !DUEL_API_URL.includes("PASTE_YOUR")) {
+          callDuelApi({ action: "cancel_wait", playerId: myPlayerId }).catch(() => {});
+        }
+      } catch (e) {}
+      goToHome();
+    }
+    window.cancelOnlineWait = cancelOnlineWait;
+
+    window.addEventListener("beforeunload", () => {
+      if (waitPollTimer && myPlayerId && DUEL_API_URL && !DUEL_API_URL.includes("PASTE_YOUR")) {
+        try {
+          navigator.sendBeacon(DUEL_API_URL, JSON.stringify({ action: "cancel_wait", playerId: myPlayerId }));
+        } catch (e) {}
+      }
+    });
+
+    function enterDuelRoom(room, role, serverTime) {
+      playStartSound();
+      duelRoomId = room.roomId;
+      myRole = role;
+      oppRole = role === "p1" ? "p2" : "p1";
+
+      const me = room[myRole];
+      const opp = room[oppRole];
+      oppName = opp.name || "حریف";
+      oppClass = opp.className || "";
+
+      document.getElementById("rightArcherName").textContent = me.name;
+      document.getElementById("leftArcherName").textContent = oppName;
+
+      if (serverTime) {
+        serverTimeOffset = serverTime - Date.now();
+      }
+
+      quizQuestions = room.questionIndices.map(idx => questionBank[idx % questionBank.length]);
+      currentIndex = room.currentRound || 0;
+      playerScore = me.score || 0;
+      opponentScore = opp.score || 0;
+      playerHP = me.hp ?? TOTAL_QUESTIONS;
+      enemyHP = opp.hp ?? TOTAL_QUESTIONS;
+      userHistory = [];
+      lastRenderedRound = -1;
+      lastResolvedRound = -1;
+      mySelectedForRound = {};
+      duelFinishedTriggered = false;
+
+      resetArchersFallState();
+      switchScreen("gameScreen");
+      syncDuelRoomState(room, serverTime);
+
+      // Start room polling
+      roomPollTimer = setInterval(async () => {
+        if (isPollingNow || duelFinishedTriggered) return;
+        isPollingNow = true;
+        try {
+          const data = await callDuelApi({
+            action: "poll_room",
+            roomId: duelRoomId,
+            playerId: myPlayerId
+          });
+          if (data.status === "ok" && data.room) {
+            syncDuelRoomState(data.room, data.serverTime);
+          }
+        } catch (e) {
+          // transient network error, keep polling
+        } finally {
+          isPollingNow = false;
+        }
+      }, 1600);
+
+      // Smooth 1-second local countdown display synced with server
+      countdownTimer = setInterval(() => {
+        if (gameMode !== "duel" || duelFinishedTriggered) return;
+        const estimatedServerNow = Date.now() + serverTimeOffset;
+        const elapsed = estimatedServerNow - currentRoundStartTime;
+        const rem = Math.max(0, Math.ceil((QUESTION_DURATION_MS - elapsed) / 1000));
+        updateScoreUI(true, rem);
+      }, 500);
+    }
+
+    function syncDuelRoomState(room, serverTime) {
       if (!verifyFooterIntegrity()) return;
-      const item = quizQuestions[currentIndex];
+      if (serverTime) {
+        serverTimeOffset = serverTime - Date.now();
+      }
+
+      // 1) If a round just finished and we haven't animated it yet, animate it!
+      if (room.lastRoundOutcome && room.lastRoundOutcome.round > lastResolvedRound) {
+        lastResolvedRound = room.lastRoundOutcome.round;
+        resolveDuelRoundUI(room, room.lastRoundOutcome);
+      }
+
+      // 2) Check if match is finished
+      if (room.status === "finished" && !duelFinishedTriggered) {
+        duelFinishedTriggered = true;
+        stopAllDuelTimers();
+        const me = room[myRole];
+        const opp = room[oppRole];
+        playerScore = me.score;
+        opponentScore = opp.score;
+        playerHP = me.hp;
+        enemyHP = opp.hp;
+        updateScoreUI(true, 0);
+
+        let someoneFell = false;
+        if (playerScore > opponentScore) {
+          triggerFinalFallAnimation("enemy");
+          someoneFell = true;
+        } else if (opponentScore > playerScore) {
+          triggerFinalFallAnimation("player");
+          someoneFell = true;
+        }
+
+        setTimeout(() => {
+          finishDuelGame(room);
+        }, someoneFell ? 2000 : 800);
+        return;
+      }
+
+      // 3) Render new round if server moved to a new round
+      if (room.status === "playing" && room.currentRound !== lastRenderedRound) {
+        currentIndex = room.currentRound;
+        lastRenderedRound = room.currentRound;
+        currentRoundStartTime = room.roundStartTime || (Date.now() + serverTimeOffset);
+        renderDuelQuestion(currentIndex);
+      }
+    }
+
+    function renderDuelQuestion(roundIdx) {
+      const item = quizQuestions[roundIdx];
       if (!item) return;
 
-      updateScoreUI(true);
+      const estimatedServerNow = Date.now() + serverTimeOffset;
+      const rem = Math.max(0, Math.ceil((QUESTION_DURATION_MS - (estimatedServerNow - currentRoundStartTime)) / 1000));
+      updateScoreUI(true, rem);
 
       const questionTextEl = document.getElementById("questionText");
       const optionsContainer = document.getElementById("optionsContainer");
       const feedbackBanner = document.getElementById("feedbackBanner");
-
-      if (!questionTextEl || !optionsContainer || !feedbackBanner) return;
 
       questionTextEl.textContent = item.q;
       questionTextEl.classList.toggle("long-q", item.q.length > 52);
@@ -2035,27 +2380,276 @@ const questionBank = rawQuestionData.questions.map(item => ({
       feedbackBanner.textContent = "";
 
       const shuffledOptions = shuffleArray(item.o.map((text, idx) => ({ text, originalIdx: idx })));
-
       shuffledOptions.forEach((optObj) => {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "option-btn";
         btn.dataset.idx = optObj.originalIdx;
         btn.textContent = optObj.text;
-        btn.addEventListener("click", () => handleAnswer(optObj.originalIdx));
+        btn.addEventListener("click", () => handleDuelAnswer(roundIdx, optObj.originalIdx));
         optionsContainer.appendChild(btn);
       });
     }
 
-    function handleAnswer(selectedIndex) {
+    async function handleDuelAnswer(roundIdx, selectedIndex) {
+      if (!verifyFooterIntegrity()) return;
+      if (mySelectedForRound[roundIdx] !== undefined) return;
+      mySelectedForRound[roundIdx] = selectedIndex;
+
+      const item = quizQuestions[roundIdx];
+      const isCorrect = selectedIndex === item.a;
+
+      const buttons = document.querySelectorAll("#optionsContainer .option-btn");
+      buttons.forEach((btn) => {
+        btn.disabled = true;
+        if (Number(btn.dataset.idx) === selectedIndex) {
+          btn.classList.add("selected-wait");
+        }
+      });
+
+      const feedback = document.getElementById("feedbackBanner");
+      feedback.className = "feedback-banner show feedback-wait";
+      feedback.textContent = `✅ پاسخ شما ثبت شد! ⏳ در انتظار پاسخ ${oppName}...`;
+
+      try {
+        const data = await callDuelApi({
+          action: "answer",
+          roomId: duelRoomId,
+          playerId: myPlayerId,
+          round: roundIdx,
+          selected: selectedIndex,
+          isCorrect: isCorrect
+        });
+        if (data.status === "ok" && data.room) {
+          syncDuelRoomState(data.room, data.serverTime);
+        }
+      } catch (e) {
+        // poll_room will still sync
+      }
+    }
+
+    function resolveDuelRoundUI(room, outcome) {
+      const r = outcome.round;
+      const item = quizQuestions[r];
+      if (!item) return;
+
+      const myCorrect = myRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
+      const oppCorrect = oppRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
+      const mySel = myRole === "p1" ? outcome.p1Selected : outcome.p2Selected;
+
+      // Save history
+      userHistory.push({
+        question: item.q,
+        userAnswer: mySel >= 0 ? item.o[mySel] : "بدون پاسخ (پایان زمان)",
+        correctAnswer: item.o[item.a],
+        isCorrect: myCorrect,
+        explanation: item.exp
+      });
+
+      // Highlight options if still showing this round
+      if (lastRenderedRound === r) {
+        const buttons = document.querySelectorAll("#optionsContainer .option-btn");
+        buttons.forEach((btn) => {
+          const btnIdx = Number(btn.dataset.idx);
+          btn.disabled = true;
+          btn.classList.remove("selected-wait");
+          if (btnIdx === item.a) {
+            btn.classList.add("correct-ans");
+          } else if (btnIdx === mySel && !myCorrect) {
+            btn.classList.add("wrong-ans");
+          }
+        });
+
+        const feedback = document.getElementById("feedbackBanner");
+        if (myCorrect && !oppCorrect) {
+          feedback.className = "feedback-banner show feedback-ok";
+          feedback.textContent = `🎯 شلیک دقیق! شما درست زدید (+۱۰۰) و ${oppName} اشتباه کرد — ${item.exp}`;
+        } else if (myCorrect && oppCorrect) {
+          feedback.className = "feedback-banner show feedback-ok";
+          feedback.textContent = `⚔️ تبادل تیر! هر دو درست پاسخ دادید (+۱۰۰) — ${item.exp}`;
+        } else if (!myCorrect && oppCorrect) {
+          feedback.className = "feedback-banner show feedback-err";
+          feedback.textContent = `🛡️ ${oppName} به شما شلیک کرد! پاسخ صحیح: «${item.o[item.a]}» — ${item.exp}`;
+        } else {
+          feedback.className = "feedback-banner show feedback-err";
+          feedback.textContent = `❄️ هیچ‌کدام درست نزدید! صحیح: «${item.o[item.a]}» — ${item.exp}`;
+        }
+      }
+
+      const me = room[myRole];
+      const opp = room[oppRole];
+
+      const applyScores = () => {
+        playerScore = me.score;
+        opponentScore = opp.score;
+        playerHP = me.hp;
+        enemyHP = opp.hp;
+        updateScoreUI(true, 0);
+      };
+
+      if (myCorrect && oppCorrect) {
+        fireArrow(true, null);
+        fireArrow(false, applyScores);
+      } else if (myCorrect) {
+        fireArrow(true, applyScores);
+      } else if (oppCorrect) {
+        fireArrow(false, applyScores);
+      } else {
+        playHitSound(false);
+        applyScores();
+      }
+    }
+
+    function finishDuelGame(room) {
+      const progressEl = document.getElementById("progressText");
+      if (progressEl) progressEl.textContent = "پایان دوئل";
+      switchScreen("endScreen");
+      stopSnowLoop();
+
+      const me = room[myRole];
+      const opp = room[oppRole];
+      const myCorrectCount = Math.round((me.score || 0) / 100);
+      const oppCorrectCount = Math.round((opp.score || 0) / 100);
+
+      let titleText = "🤝 دوئل مساوی شد!";
+      let subText = "هر دو کماندار عملکردی برابر داشتند!";
+      let isWin = false;
+
+      if (me.score > opp.score) {
+        titleText = "🏆 شما برنده دوئل شدید!";
+        subText = `آفرین ${me.name}! با ${toPersianNum(myCorrectCount)} پاسخ درست، ${opp.name} را شکست دادید.`;
+        isWin = true;
+        runConfettiCelebration(3000);
+      } else if (opp.score > me.score) {
+        titleText = "❄️ حریف برنده دوئل شد!";
+        subText = `${opp.name} با ${toPersianNum(oppCorrectCount)} پاسخ درست برنده شد. با مرور نکات زیر، دوئل بعدی را ببرید!`;
+      }
+
+      playEndSound(isWin);
+
+      const rawScore20 = (myCorrectCount / TOTAL_QUESTIONS) * 20;
+      const scoreOutOf20 = Math.round(rawScore20 * 4) / 4;
+      const formattedGrade = toPersianNum(String(scoreOutOf20).replace('.', '/'));
+
+      let analysisHTML = "";
+      userHistory.forEach((rec, idx) => {
+        analysisHTML += `
+          <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
+            <div style="font-weight:800; margin-bottom:3px;">
+              ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
+            </div>
+            <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
+            <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
+          </div>
+        `;
+      });
+
+      const endEl = document.getElementById("endScreen");
+      endEl.scrollTop = 0;
+      endEl.innerHTML = `
+        <div class="end-summary">
+          <h2 class="game-title">${titleText}</h2>
+          <p style="color:#cdebf7; font-size:12.5px; margin-top:4px;">${subText}</p>
+
+          <div class="score-grid">
+            <div class="score-pill" style="background:rgba(214,40,40,0.42); border:1px solid #ff8fa3;">
+              🏹 ${me.name}: ${toPersianNum(me.score)} امتیاز (${toPersianNum(myCorrectCount)} درست)
+            </div>
+            <div class="score-pill" style="background:rgba(0,119,182,0.45); border:1px solid #90e0ef;">
+              🎯 ${opp.name}: ${toPersianNum(opp.score)} امتیاز (${toPersianNum(oppCorrectCount)} درست)
+            </div>
+          </div>
+
+          <div class="end-actions">
+            <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
+              📝 نمره شما: ${formattedGrade} از ۲۰
+            </div>
+            <button type="button" class="primary-btn" style="width:auto; padding:7px 15px; font-size:13px;" onclick="startOnlineDuel()">⚔️ دوئل جدید</button>
+            <button type="button" class="secondary-btn" style="width:auto; padding:7px 14px; font-size:12.5px;" onclick="goToHome()">🏠 منوی اصلی</button>
+          </div>
+        </div>
+
+        <div class="analysis-list">
+          ${analysisHTML}
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // SINGLE-PLAYER PRACTICE MODE (Original)
+    // =========================================================================
+    function startSinglePlayer() {
+      if (!verifyFooterIntegrity()) return;
+      stopAllDuelTimers();
+      gameMode = "single";
+
+      const ctx = getAudioCtx();
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().then(() => playStartSound()).catch(() => playStartSound());
+      } else {
+        playStartSound();
+      }
+      stopConfetti();
+      startSnowLoop();
+      resetArchersFallState();
+
+      document.getElementById("rightArcherName").textContent = "شما";
+      document.getElementById("leftArcherName").textContent = "حریف";
+
+      quizQuestions = shuffleArray(questionBank).slice(0, TOTAL_QUESTIONS);
+      currentIndex = 0;
+      playerScore = 0;
+      opponentScore = 0;
+      enemyHits = 0;
+      playerHP = TOTAL_QUESTIONS;
+      enemyHP = TOTAL_QUESTIONS;
+      userHistory = [];
+      isAnimating = false;
+
+      updateScoreUI(true);
+      switchScreen("gameScreen");
+      renderSingleQuestion();
+    }
+    window.startSinglePlayer = startSinglePlayer;
+
+    function renderSingleQuestion() {
+      if (!verifyFooterIntegrity()) return;
+      const item = quizQuestions[currentIndex];
+      if (!item) return;
+
+      updateScoreUI(true);
+      const questionTextEl = document.getElementById("questionText");
+      const optionsContainer = document.getElementById("optionsContainer");
+      const feedbackBanner = document.getElementById("feedbackBanner");
+
+      questionTextEl.textContent = item.q;
+      questionTextEl.classList.toggle("long-q", item.q.length > 52);
+
+      const maxOptionLen = Math.max(...item.o.map(opt => opt.length));
+      optionsContainer.classList.toggle("single-col", maxOptionLen > 18);
+
+      optionsContainer.innerHTML = "";
+      feedbackBanner.className = "feedback-banner";
+      feedbackBanner.textContent = "";
+
+      const shuffledOptions = shuffleArray(item.o.map((text, idx) => ({ text, originalIdx: idx })));
+      shuffledOptions.forEach((optObj) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "option-btn";
+        btn.dataset.idx = optObj.originalIdx;
+        btn.textContent = optObj.text;
+        btn.addEventListener("click", () => handleSingleAnswer(optObj.originalIdx));
+        optionsContainer.appendChild(btn);
+      });
+    }
+
+    function handleSingleAnswer(selectedIndex) {
       if (!verifyFooterIntegrity() || isAnimating) return;
       isAnimating = true;
 
       const item = quizQuestions[currentIndex];
-      if (!item) {
-        isAnimating = false;
-        return;
-      }
+      if (!item) { isAnimating = false; return; }
 
       const isCorrect = selectedIndex === item.a;
       const isLastQuestion = currentIndex === TOTAL_QUESTIONS - 1;
@@ -2064,11 +2658,8 @@ const questionBank = rawQuestionData.questions.map(item => ({
       buttons.forEach((btn) => {
         const btnIdx = Number(btn.dataset.idx);
         btn.disabled = true;
-        if (btnIdx === item.a) {
-          btn.classList.add("correct-ans");
-        } else if (btnIdx === selectedIndex && !isCorrect) {
-          btn.classList.add("wrong-ans");
-        }
+        if (btnIdx === item.a) btn.classList.add("correct-ans");
+        else if (btnIdx === selectedIndex && !isCorrect) btn.classList.add("wrong-ans");
       });
 
       userHistory.push({
@@ -2080,14 +2671,12 @@ const questionBank = rawQuestionData.questions.map(item => ({
       });
 
       const feedback = document.getElementById("feedbackBanner");
-      if (feedback) {
-        if (isCorrect) {
-          feedback.className = "feedback-banner show feedback-ok";
-          feedback.textContent = `آفرین! پاسخ درست است (+۱۰۰ امتیاز) — ${item.exp}`;
-        } else {
-          feedback.className = "feedback-banner show feedback-err";
-          feedback.textContent = `پاسخ نادرست! صحیح: «${item.o[item.a]}» — ${item.exp}`;
-        }
+      if (isCorrect) {
+        feedback.className = "feedback-banner show feedback-ok";
+        feedback.textContent = `آفرین! پاسخ درست است (+۱۰۰ امتیاز) — ${item.exp}`;
+      } else {
+        feedback.className = "feedback-banner show feedback-err";
+        feedback.textContent = `پاسخ نادرست! صحیح: «${item.o[item.a]}» — ${item.exp}`;
       }
 
       fireArrow(isCorrect, () => {
@@ -2098,12 +2687,10 @@ const questionBank = rawQuestionData.questions.map(item => ({
           enemyHits++;
           playerHP = Math.max(0, playerHP - 1);
         }
-
         updateScoreUI(true);
 
         const playerHitsCount = playerScore / 100;
         let shouldFall = false;
-
         if (isLastQuestion) {
           if (playerHitsCount > enemyHits) {
             triggerFinalFallAnimation("enemy");
@@ -2114,21 +2701,79 @@ const questionBank = rawQuestionData.questions.map(item => ({
           }
         }
 
-        const nextDelay = shouldFall ? 2000 : 420;
-
         setTimeout(() => {
           if (!verifyFooterIntegrity()) return;
           currentIndex++;
           isAnimating = false;
-          if (currentIndex >= TOTAL_QUESTIONS) {
-            finishGame();
-          } else {
-            renderQuestion();
-          }
-        }, nextDelay);
+          if (currentIndex >= TOTAL_QUESTIONS) finishSingleGame();
+          else renderSingleQuestion();
+        }, shouldFall ? 2000 : 420);
       });
     }
 
+    function finishSingleGame() {
+      const progressEl = document.getElementById("progressText");
+      if (progressEl) progressEl.textContent = "پایان آزمون";
+      switchScreen("endScreen");
+      stopSnowLoop();
+
+      const correctCount = userHistory.filter(rec => rec.isCorrect).length;
+      const accuracyPercent = (correctCount / TOTAL_QUESTIONS) * 100;
+      const isWinner = playerScore >= Math.ceil(TOTAL_QUESTIONS / 2) * 100;
+      playEndSound(isWinner);
+      if (accuracyPercent >= 80) runConfettiCelebration(2800);
+
+      const endEl = document.getElementById("endScreen");
+      endEl.scrollTop = 0;
+
+      const rawScore20 = (correctCount / TOTAL_QUESTIONS) * 20;
+      const scoreOutOf20 = Math.round(rawScore20 * 4) / 4;
+      const formattedGrade = toPersianNum(String(scoreOutOf20).replace('.', '/'));
+
+      let analysisHTML = "";
+      userHistory.forEach((rec, idx) => {
+        analysisHTML += `
+          <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
+            <div style="font-weight:800; margin-bottom:3px;">
+              ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
+            </div>
+            <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
+            <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
+          </div>
+        `;
+      });
+
+      endEl.innerHTML = `
+        <div class="end-summary">
+          <h2 class="game-title">${isWinner ? "🏆 موفقیت در یادگیری زبان عربی!" : "❄️ پایان آزمون زبان عربی"}</h2>
+          <p style="color:#cdebf7; font-size:12.5px;">
+            ${isWinner ? "آفرین! عملکرد شما قابل تحسین است." : "تلاش خوبی بود! با مرور توضیحات زیر دوباره آزمون را امتحان کنید."}
+          </p>
+          <div class="score-grid">
+            <div class="score-pill" style="background:rgba(27,138,75,0.4); border:1px solid #69f0ae;">
+              🎯 امتیاز شما: ${toPersianNum(playerScore)} از ${toPersianNum(TOTAL_QUESTIONS * 100)}
+            </div>
+            <div class="score-pill" style="background:rgba(0,119,182,0.4); border:1px solid #90e0ef;">
+              🏹 ضربه حریف: ${toPersianNum(enemyHits)}
+            </div>
+          </div>
+          <div class="end-actions">
+            <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
+              📝 نمره آزمون شما: ${formattedGrade} از ۲۰
+            </div>
+            <button type="button" class="primary-btn" style="width:auto; padding:7px 15px; font-size:13px;" onclick="startSinglePlayer()">🔄 شروع مجدد</button>
+            <button type="button" class="secondary-btn" style="width:auto; padding:7px 14px; font-size:12.5px;" onclick="goToHome()">🏠 منوی اصلی</button>
+          </div>
+        </div>
+        <div class="analysis-list">
+          ${analysisHTML}
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // ARROW ANIMATION ENGINE
+    // =========================================================================
     function fireArrow(fromRightToLeft, onImpact) {
       playBowSound();
 
@@ -2136,7 +2781,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
       const leftSvg = document.getElementById("leftArcherSvg");
       const rightReady = document.getElementById("rightReadyArrow");
       const leftReady = document.getElementById("leftReadyArrow");
-
       const rightBowAnchor = document.getElementById("rightBowAnchor");
       const leftBowAnchor = document.getElementById("leftBowAnchor");
       const rightTargetAnchor = document.getElementById("rightTargetAnchor");
@@ -2152,17 +2796,14 @@ const questionBank = rawQuestionData.questions.map(item => ({
       const arrowHeight = Math.round(arrowWidth * 0.28);
 
       let startX, startY, targetAnchorEl, arrowColor, tipColor;
-
       if (fromRightToLeft) {
         rightSvg.classList.remove("shoot-right");
         void rightSvg.offsetWidth;
         rightSvg.classList.add("shoot-right");
-
         const bowRect = rightBowAnchor.getBoundingClientRect();
         startX = bowRect.left + bowRect.width / 2;
         startY = bowRect.top + bowRect.height / 2;
         if (rightReady) rightReady.style.opacity = "0";
-
         targetAnchorEl = leftTargetAnchor;
         arrowColor = "#d62828";
         tipColor = "#ff4d6d";
@@ -2170,12 +2811,10 @@ const questionBank = rawQuestionData.questions.map(item => ({
         leftSvg.classList.remove("shoot-left");
         void leftSvg.offsetWidth;
         leftSvg.classList.add("shoot-left");
-
         const bowRect = leftBowAnchor.getBoundingClientRect();
         startX = bowRect.left + bowRect.width / 2;
         startY = bowRect.top + bowRect.height / 2;
         if (leftReady) leftReady.style.opacity = "0";
-
         targetAnchorEl = rightTargetAnchor;
         arrowColor = "#0077b6";
         tipColor = "#48cae4";
@@ -2214,7 +2853,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
       function step(now) {
         const elapsed = now - startTime;
         const t = Math.min(elapsed / duration, 1);
-
         const liveTargetRect = targetAnchorEl.getBoundingClientRect();
         const endX = liveTargetRect.left + liveTargetRect.width / 2;
         const endY = liveTargetRect.top + liveTargetRect.height / 2;
@@ -2260,13 +2898,12 @@ const questionBank = rawQuestionData.questions.map(item => ({
           if (fromRightToLeft) {
             triggerTargetHit("leftArcherBox", endX, endY, "#e63946", "+۱۰۰ امتیاز");
           } else {
-            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", "پاسخ اشتباه!");
+            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", gameMode === "duel" ? "شلیک حریف!" : "پاسخ اشتباه!");
           }
 
           if (onImpact) onImpact();
         }
       }
-
       requestAnimationFrame(step);
     }
 
@@ -2298,7 +2935,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
         spark.style.left = `${hitX}px`;
         spark.style.top = `${hitY}px`;
         document.body.appendChild(spark);
-
         const angle = (Math.PI * 2 * i) / 6;
         const dist = 16 + Math.random() * 14;
         if (spark.animate) {
@@ -2314,110 +2950,16 @@ const questionBank = rawQuestionData.questions.map(item => ({
       }
     }
 
-    function finishGame() {
-      const progressEl = document.getElementById("progressText");
-      if (progressEl) progressEl.textContent = "پایان آزمون";
-      switchScreen("endScreen");
-      stopSnowLoop();
-
-      const correctCount = userHistory.filter(rec => rec.isCorrect).length;
-      const accuracyPercent = (correctCount / TOTAL_QUESTIONS) * 100;
-      const isWinner = playerScore >= Math.ceil(TOTAL_QUESTIONS / 2) * 100;
-      playEndSound(isWinner);
-
-      if (accuracyPercent >= 80) {
-        runConfettiCelebration(2800);
-      }
-
-      const endEl = document.getElementById("endScreen");
-      if (!endEl) return;
-      endEl.scrollTop = 0;
-
-      const rawScore20 = (correctCount / TOTAL_QUESTIONS) * 20;
-      const scoreOutOf20 = Math.round(rawScore20 * 4) / 4;
-      const formattedGrade = toPersianNum(String(scoreOutOf20).replace('.', '/'));
-      lastQuizResult = {
-        scoreOutOf20: scoreOutOf20,
-        playerScore: playerScore,
-        correctCount: correctCount,
-        enemyHits: enemyHits,
-        total: TOTAL_QUESTIONS,
-        status: isWinner ? "موفق" : "نیاز به تلاش بیشتر"
-      };
-      hasSubmittedResult = false;
-
-      let analysisHTML = "";
-      userHistory.forEach((rec, idx) => {
-        analysisHTML += `
-          <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
-            <div style="font-weight:800; margin-bottom:3px;">
-              ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
-            </div>
-            <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
-            <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
-          </div>
-        `;
-      });
-
-      endEl.innerHTML = `
-        <div class="end-summary">
-          <h2 class="game-title">${isWinner ? "🏆 موفقیت در یادگیری زبان عربی!" : "❄️ پایان آزمون زبان عربی"}</h2>
-          <p style="color:#cdebf7; font-size:12.5px;">
-            ${isWinner ? "آفرین! عملکرد شما قابل تحسین است." : "تلاش خوبی بود! با مرور توضیحات زیر دوباره آزمون را امتحان کنید."}
-          </p>
-
-          <div class="score-grid">
-            <div class="score-pill" style="background:rgba(27,138,75,0.4); border:1px solid #69f0ae;">
-              🎯 امتیاز شما: ${toPersianNum(playerScore)} از ${toPersianNum(TOTAL_QUESTIONS * 100)}
-            </div>
-            <div class="score-pill" style="background:rgba(0,119,182,0.4); border:1px solid #90e0ef;">
-              🏹 ضربه حریف: ${toPersianNum(enemyHits)}
-            </div>
-          </div>
-
-          <div class="end-actions">
-            <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
-              📝 نمره آزمون شما: ${formattedGrade} از ۲۰
-            </div>
-            <button type="button" class="primary-btn" style="padding:7px 16px; font-size:13px;" onclick="startGame()">🔄 شروع مجدد</button>
-          </div>
-
-          <div class="submit-result-box">
-            <input type="text" id="studentNameInput" class="student-name-input" placeholder="نام و نام خانوادگی..." autocomplete="name" />
-            <div class="student-class-row">
-              <select id="studentGradeInput" class="student-select" aria-label="پایه تحصیلی">
-                <option value="">انتخاب پایه...</option>
-                <option value="هفتم">پایه هفتم</option>
-                <option value="هشتم" selected>پایه هشتم</option>
-                <option value="نهم">پایه نهم</option>
-              </select>
-              <select id="studentClassInput" class="student-select" aria-label="شعبه کلاس">
-                <option value="">انتخاب شعبه...</option>
-                <option value="1">شعبه ۱</option>
-                <option value="2">شعبه ۲</option>
-                <option value="3">شعبه ۳</option>
-                <option value="4">شعبه ۴</option>
-                <option value="5">شعبه ۵</option>
-                <option value="6">شعبه ۶</option>
-                <option value="7">شعبه ۷</option>
-                <option value="8">شعبه ۸</option>
-              </select>
-            </div>
-            <button type="button" id="submitResultBtn" class="submit-result-btn" onclick="handleSubmitResult()">📤 ارسال نتیجه آزمون</button>
-            <div id="submitStatusMsg" class="submit-status-msg"></div>
-          </div>
-        </div>
-
-        <div class="analysis-list">
-          ${analysisHTML}
-        </div>
-      `;
-    }
-
     function initApp() {
       resizeSnowCanvas();
       initSnowflakes();
       startSnowLoop();
+      try {
+        const savedName = localStorage.getItem("duel_student_name");
+        const savedClass = localStorage.getItem("duel_student_class");
+        if (savedName) document.getElementById("studentNameInput").value = savedName;
+        if (savedClass) document.getElementById("studentClassInput").value = savedClass;
+      } catch (e) {}
     }
 
     if (document.readyState === "loading") {
@@ -2425,111 +2967,6 @@ const questionBank = rawQuestionData.questions.map(item => ({
     } else {
       initApp();
     }
-
-let lastQuizResult = null;
-    let hasSubmittedResult = false;
-
-    function sendResultToSheet(payload) {
-      const scriptURL = "https://script.google.com/macros/s/AKfycbw8wCY98AguIZ-sFCGaoM2EyOatSZCpZT_JbgG4FfYueR9il10pQXyqw4MBw3b9cH8T/exec";
-
-      return fetch(scriptURL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: {
-          "Content-Type": "text/plain"
-        },
-        body: JSON.stringify(payload)
-      });
-    }
-
-    function handleSubmitResult() {
-      if (hasSubmittedResult || !lastQuizResult) return;
-
-      const nameInput = document.getElementById("studentNameInput");
-      const gradeInput = document.getElementById("studentGradeInput");
-      const classInput = document.getElementById("studentClassInput");
-      const btn = document.getElementById("submitResultBtn");
-      const statusMsg = document.getElementById("submitStatusMsg");
-
-      const studentName = nameInput ? nameInput.value.trim() : "";
-      const studentGrade = gradeInput ? gradeInput.value.trim() : "";
-      const studentClass = classInput ? classInput.value.trim() : "";
-
-      if (studentName.length < 2) {
-        if (statusMsg) {
-          statusMsg.style.color = "#fca5a5";
-          statusMsg.textContent = "⚠️ لطفاً ابتدا نام و نام خانوادگی خود را وارد کنید.";
-        }
-        if (nameInput) nameInput.focus();
-        return;
-      }
-
-      if (!studentGrade) {
-        if (statusMsg) {
-          statusMsg.style.color = "#fca5a5";
-          statusMsg.textContent = "⚠️ لطفاً پایه تحصیلی خود را انتخاب کنید.";
-        }
-        if (gradeInput) gradeInput.focus();
-        return;
-      }
-
-      if (!studentClass) {
-        if (statusMsg) {
-          statusMsg.style.color = "#fca5a5";
-          statusMsg.textContent = "⚠️ لطفاً شعبه کلاس خود را انتخاب کنید.";
-        }
-        if (classInput) classInput.focus();
-        return;
-      }
-
-      if (btn) {
-        btn.disabled = true;
-        btn.textContent = "⏳ در حال ارسال...";
-      }
-      if (nameInput) nameInput.disabled = true;
-      if (gradeInput) gradeInput.disabled = true;
-      if (classInput) classInput.disabled = true;
-      if (statusMsg) {
-        statusMsg.style.color = "#fde047";
-        statusMsg.textContent = "در حال ثبت نتیجه در سامانه...";
-      }
-
-      const payload = {
-        name: studentName,
-        grade: studentGrade,
-        classSection: studentClass,
-        score20: lastQuizResult.scoreOutOf20,
-        points: lastQuizResult.playerScore,
-        correct: lastQuizResult.correctCount,
-        enemyHits: lastQuizResult.enemyHits,
-        total: lastQuizResult.total,
-        status: lastQuizResult.status
-      };
-
-      sendResultToSheet(payload)
-        .then(() => {
-          hasSubmittedResult = true;
-          if (btn) btn.textContent = "✅ ارسال شد";
-          if (statusMsg) {
-            statusMsg.style.color = "#86efac";
-            statusMsg.textContent = "✅ نتیجه آزمون با موفقیت ثبت شد.";
-          }
-        })
-        .catch(() => {
-          if (btn) {
-            btn.disabled = false;
-            btn.textContent = "📤 ارسال نتیجه آزمون";
-          }
-          if (nameInput) nameInput.disabled = false;
-          if (gradeInput) gradeInput.disabled = false;
-          if (classInput) classInput.disabled = false;
-          if (statusMsg) {
-            statusMsg.style.color = "#fca5a5";
-            statusMsg.textContent = "❌ خطا در ارسال! اتصال اینترنت را بررسی کرده و دوباره تلاش کنید.";
-          }
-        });
-    }
-    window.handleSubmitResult = handleSubmitResult;
   </script>
 </body>
 </html>
