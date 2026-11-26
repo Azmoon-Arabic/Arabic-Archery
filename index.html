@@ -2094,6 +2094,7 @@ const rawQuestionData = {
     let mySelectedForRound = {}; // round -> selectedIdx
     let duelFinishedTriggered = false;
     let currentRoundStartTime = 0;
+    let pendingRoundRenderTimer = null;
 
     // --- Footer Integrity Guard ---
     const FOOTER_TEXT = "تهیه کننده: اسماعیل قاضی‌نیا | دبیر دینی و عربی شهرستان بوکان";
@@ -2183,6 +2184,7 @@ const rawQuestionData = {
       if (waitClockTimer) { clearInterval(waitClockTimer); waitClockTimer = null; }
       if (roomPollTimer) { clearInterval(roomPollTimer); roomPollTimer = null; }
       if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+      if (pendingRoundRenderTimer) { clearTimeout(pendingRoundRenderTimer); pendingRoundRenderTimer = null; }
       isPollingNow = false;
     }
 
@@ -2649,9 +2651,12 @@ const rawQuestionData = {
         serverTimeOffset = serverTime - Date.now();
       }
 
+      let justResolved = false;
+
       // 1) If a round just finished and we haven't animated it yet, animate it!
       if (room.lastRoundOutcome && room.lastRoundOutcome.round > lastResolvedRound) {
         lastResolvedRound = room.lastRoundOutcome.round;
+        justResolved = true;
         resolveDuelRoundUI(room, room.lastRoundOutcome);
       }
 
@@ -2661,33 +2666,56 @@ const rawQuestionData = {
         stopAllDuelTimers();
         const me = room[myRole];
         const opp = room[oppRole];
-        playerScore = me.score;
-        opponentScore = opp.score;
-        playerHP = me.hp;
-        enemyHP = opp.hp;
-        updateScoreUI(true, 0);
-
-        let someoneFell = false;
-        if (playerScore > opponentScore) {
-          triggerFinalFallAnimation("enemy");
-          someoneFell = true;
-        } else if (opponentScore > playerScore) {
-          triggerFinalFallAnimation("player");
-          someoneFell = true;
-        }
+        const fallDelay = justResolved ? 620 : 100;
 
         setTimeout(() => {
-          finishDuelGame(room);
-        }, someoneFell ? 2000 : 800);
+          playerScore = me.score;
+          opponentScore = opp.score;
+          playerHP = me.hp;
+          enemyHP = opp.hp;
+          updateScoreUI(true, 0);
+
+          let someoneFell = false;
+          if (playerScore > opponentScore) {
+            triggerFinalFallAnimation("enemy");
+            someoneFell = true;
+          } else if (opponentScore > playerScore) {
+            triggerFinalFallAnimation("player");
+            someoneFell = true;
+          }
+
+          setTimeout(() => {
+            finishDuelGame(room);
+          }, someoneFell ? 1900 : 750);
+        }, fallDelay);
         return;
       }
 
-      // 3) Render new round if server moved to a new round
+      // 3) Render new round if server moved to a new round (wait for arrow + feedback if just resolved)
       if (room.status === "playing" && room.currentRound !== lastRenderedRound) {
-        currentIndex = room.currentRound;
-        lastRenderedRound = room.currentRound;
-        currentRoundStartTime = room.roundStartTime || (Date.now() + serverTimeOffset);
-        renderDuelQuestion(currentIndex);
+        const nextRound = room.currentRound;
+        const nextStart = room.roundStartTime || (Date.now() + serverTimeOffset);
+        lastRenderedRound = nextRound;
+
+        if (pendingRoundRenderTimer) {
+          clearTimeout(pendingRoundRenderTimer);
+          pendingRoundRenderTimer = null;
+        }
+
+        const renderDelay = justResolved ? 1150 : 0;
+        if (renderDelay > 0) {
+          pendingRoundRenderTimer = setTimeout(() => {
+            pendingRoundRenderTimer = null;
+            if (duelFinishedTriggered) return;
+            currentIndex = nextRound;
+            currentRoundStartTime = nextStart;
+            renderDuelQuestion(currentIndex);
+          }, renderDelay);
+        } else {
+          currentIndex = nextRound;
+          currentRoundStartTime = nextStart;
+          renderDuelQuestion(currentIndex);
+        }
       }
     }
 
@@ -2854,13 +2882,14 @@ const rawQuestionData = {
         updateScoreUI(true, 0);
       };
 
+      const myHitLabel = matchType === "speed" ? `+${toPersianNum(myEarnedPts)} ⚡` : "+۱۰۰ امتیاز";
       if (myCorrect && oppCorrect) {
-        fireArrow(true, null);
-        fireArrow(false, applyScores);
+        fireArrow(true, null, myHitLabel);
+        fireArrow(false, applyScores, "شلیک حریف!");
       } else if (myCorrect) {
-        fireArrow(true, applyScores);
+        fireArrow(true, applyScores, myHitLabel);
       } else if (oppCorrect) {
-        fireArrow(false, applyScores);
+        fireArrow(false, applyScores, "شلیک حریف!");
       } else {
         playHitSound(false);
         applyScores();
@@ -3279,8 +3308,10 @@ const rawQuestionData = {
         return;
       }
 
+      startSnowLoop();
       const rightRect = rightSvg.getBoundingClientRect();
-      const arrowWidth = Math.max(32, Math.min(50, Math.round(rightRect.width * 0.54)));
+      const baseW = rightRect.width > 10 ? rightRect.width : 78;
+      const arrowWidth = Math.max(32, Math.min(50, Math.round(baseW * 0.54)));
       const arrowHeight = Math.round(arrowWidth * 0.28);
 
       let startX, startY, targetAnchorEl, arrowColor, tipColor;
@@ -3373,25 +3404,40 @@ const rawQuestionData = {
         arrowEl.style.top = `${curY - arrowHeight / 2}px`;
         arrowEl.style.transform = `rotate(${angleDeg}deg)`;
 
-        if (t < 1) {
+        if (t < 1 && !settled) {
           requestAnimationFrame(step);
         } else {
-          trailObj.finished = true;
-          arrowEl.remove();
-          if (rightReady) rightReady.style.opacity = "1";
-          if (leftReady) leftReady.style.opacity = "1";
-
-          playHitSound(fromRightToLeft);
-
-          if (fromRightToLeft) {
-            triggerTargetHit("leftArcherBox", endX, endY, "#e63946", customLabel || "+۱۰۰ ⚡");
-          } else {
-            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", customLabel || (gameMode === "duel" ? "شلیک حریف!" : "پاسخ اشتباه!"));
-          }
-
-          if (onImpact) onImpact();
+          finishShot(endX, endY);
         }
       }
+
+      let settled = false;
+      function finishShot(hitX, hitY) {
+        if (settled) return;
+        settled = true;
+        trailObj.finished = true;
+        if (arrowEl && arrowEl.parentNode) arrowEl.remove();
+        if (rightReady) rightReady.style.opacity = "1";
+        if (leftReady) leftReady.style.opacity = "1";
+
+        playHitSound(fromRightToLeft);
+
+        if (fromRightToLeft) {
+          triggerTargetHit("leftArcherBox", hitX, hitY, "#e63946", customLabel || "+۱۰۰ ⚡");
+        } else {
+          triggerTargetHit("rightArcherBox", hitX, hitY, "#0077b6", customLabel || (gameMode === "duel" ? "شلیک حریف!" : "پاسخ اشتباه!"));
+        }
+
+        if (onImpact) onImpact();
+      }
+
+      setTimeout(() => {
+        if (!settled) {
+          const liveTargetRect = targetAnchorEl.getBoundingClientRect();
+          finishShot(liveTargetRect.left + liveTargetRect.width / 2, liveTargetRect.top + liveTargetRect.height / 2);
+        }
+      }, duration + 260);
+
       requestAnimationFrame(step);
     }
 
