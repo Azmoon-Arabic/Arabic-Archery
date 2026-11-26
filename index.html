@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>دوئل آنلاین کمانداران | یادگیری زبان عربی</title>
+  <title>دوئل کمانداران عربی | مسابقه عادی و سرعتی</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;600;700;900&display=swap');
 
@@ -425,6 +425,50 @@
       margin-bottom: 3px;
     }
 
+    .mode-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px;
+      margin: 8px 0 8px;
+    }
+
+    .mode-option-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid rgba(144, 224, 239, 0.35);
+      border-radius: 11px;
+      padding: 7px 6px;
+      color: #dbeafe;
+      font-family: inherit;
+      font-size: clamp(11.5px, 3vw, 13px);
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.18s ease;
+    }
+
+    .mode-option-btn small {
+      font-size: clamp(9.5px, 2.4vw, 10.8px);
+      font-weight: 500;
+      opacity: 0.85;
+    }
+
+    .mode-option-btn.active-normal {
+      background: rgba(2, 132, 199, 0.42);
+      border-color: #7dd3fc;
+      color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.25);
+    }
+
+    .mode-option-btn.active-speed {
+      background: rgba(234, 88, 12, 0.44);
+      border-color: #fde047;
+      color: #fef08a;
+      box-shadow: 0 0 0 2px rgba(253, 224, 71, 0.28);
+    }
+
     .student-form {
       display: flex;
       flex-direction: column;
@@ -583,6 +627,64 @@
       padding: clamp(8px, 1.5vh, 12px) clamp(8px, 2.5vw, 12px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
       direction: rtl;
+    }
+
+    .speed-bar-wrap {
+      width: 100%;
+      margin-bottom: clamp(6px, 1vh, 8px);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .speed-bar-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: clamp(10.5px, 2.7vw, 12px);
+      font-weight: 800;
+      color: #fef08a;
+      padding: 0 2px;
+    }
+
+    .speed-streak-pill {
+      background: rgba(245, 158, 11, 0.28);
+      border: 1px solid rgba(251, 191, 36, 0.6);
+      color: #fde047;
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: clamp(10px, 2.5vw, 11.5px);
+      display: none;
+    }
+
+    .speed-streak-pill.show {
+      display: inline-block;
+    }
+
+    .speed-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 999px;
+      overflow: hidden;
+      direction: ltr;
+    }
+
+    .speed-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #22c55e, #4ade80);
+      border-radius: 999px;
+      transition: width 0.1s linear, background 0.25s ease;
+    }
+
+    .speed-fill.warn {
+      background: linear-gradient(90deg, #f59e0b, #facc15);
+    }
+
+    .speed-fill.danger {
+      background: linear-gradient(90deg, #dc2626, #f87171);
     }
 
     .question-text {
@@ -995,11 +1097,22 @@
         <section id="startScreen" class="screen active">
           <div class="card-box">
             <h1 class="game-title">🏹 دوئل کمانداران عربی ❄️</h1>
-            <p style="color: #cdebf7; font-size: clamp(11.5px, 3vw, 13.5px);">زبان عربی پایه هشتم — درس چهارم</p>
+            <p style="color: #cdebf7; font-size: clamp(11.5px, 3vw, 13.5px); font-weight: 700;">زبان عربی پایه هشتم — درس چهارم</p>
 
-            <div class="rules-list">
-              <div>⚔️ <strong>دوئل آنلاین:</strong> با یک هم‌کلاسی همزمان به ۱۵ سؤال پاسخ دهید؛ هر پاسخ درست یک تیر به سمت رقیب است!</div>
-              <div>🏆 در پایان نبرد، کماندار بازنده سقوط می‌کند و کارنامه کامل نمایش داده می‌شود.</div>
+            <div class="mode-selector" role="radiogroup" aria-label="انتخاب نوع مسابقه">
+              <button type="button" id="modeNormalBtn" class="mode-option-btn active-normal" onclick="selectMatchMode('normal')">
+                <span>⚔️ مسابقه عادی</span>
+                <small>۲۵ ثانیه | امتیاز ثابت ۱۰۰</small>
+              </button>
+              <button type="button" id="modeSpeedBtn" class="mode-option-btn" onclick="selectMatchMode('speed')">
+                <span>⚡ مسابقه سرعتی</span>
+                <small>۱۲ ثانیه | امتیاز سرعت + کمبو</small>
+              </button>
+            </div>
+
+            <div class="rules-list" id="modeRulesBox">
+              <div>⚔️ <strong>حالت عادی:</strong> هر سؤال ۲۵ ثانیه فرصت دارد و هر پاسخ درست ۱۰۰ امتیاز می‌دهد.</div>
+              <div>🤝 در دوئل آنلاین فقط با هم‌کلاسی‌هایی که همین حالت را انتخاب کرده‌اند هم‌بازی می‌شوید.</div>
             </div>
 
             <div class="student-form">
@@ -1018,8 +1131,8 @@
             <div class="form-error" id="formErrorText"></div>
 
             <div class="btn-group">
-              <button type="button" id="startDuelBtn" class="primary-btn" onclick="startOnlineDuel()">⚔️ شروع دوئل آنلاین (دونفره)</button>
-              <button type="button" id="startBtn" class="secondary-btn" onclick="startSinglePlayer()">🎯 تمرین تک‌نفره (آفلاین)</button>
+              <button type="button" id="startDuelBtn" class="primary-btn" onclick="startOnlineDuel()">⚔️ شروع دوئل آنلاین (حالت عادی)</button>
+              <button type="button" id="startBtn" class="secondary-btn" onclick="startSinglePlayer()">🎯 تمرین تک‌نفره (حالت عادی)</button>
             </div>
           </div>
         </section>
@@ -1033,6 +1146,7 @@
 
             <div class="waiting-info">
               <div>👤 نام شما: <strong id="waitPlayerName">—</strong></div>
+              <div>🎮 نوع مسابقه: <strong id="waitModeText">مسابقه عادی (۲۵ ثانیه‌ای)</strong></div>
               <div>⏱ زمان انتظار: <strong id="waitTimerText">۰ ثانیه</strong></div>
             </div>
 
@@ -1043,6 +1157,16 @@
         <!-- صفحه بازی -->
         <section id="gameScreen" class="screen">
           <div class="question-card">
+            <div class="speed-bar-wrap" id="speedBarWrap">
+              <div class="speed-bar-meta">
+                <span id="speedTimeLabel">⚡ ۱۲ ثانیه</span>
+                <span id="speedBonusPreview">جایزه سرعت: +۱۰۰</span>
+                <span id="speedStreakBadge" class="speed-streak-pill">🔥 کمبو ×۳</span>
+              </div>
+              <div class="speed-track">
+                <div class="speed-fill" id="speedBarFill" style="width: 100%;"></div>
+              </div>
+            </div>
             <div class="question-text" id="questionText"></div>
             <div class="options-grid" id="optionsContainer"></div>
             <div class="feedback-banner" id="feedbackBanner"></div>
@@ -1795,6 +1919,24 @@ const rawQuestionData = {
       } catch (e) {}
     }
 
+    function playTickSound(isUrgent) {
+      if (!isSoundEnabled) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(isUrgent ? 980 : 720, ctx.currentTime);
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.06);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.07);
+      } catch (e) {}
+    }
+
     function playBowSound() {
       if (!isSoundEnabled) return;
       try {
@@ -1900,11 +2042,17 @@ const rawQuestionData = {
       } catch (e) {}
     }
 
-    // --- Core Game State ---
+    // --- Core Game State (Dual Mode: Normal + Speed) ---
     const TOTAL_QUESTIONS = 15;
-    const QUESTION_DURATION_MS = 25000; // 25 ثانیه برای هر سؤال در حالت آنلاین
+    const NORMAL_DURATION_MS = 25000; // ۲۵ ثانیه در حالت عادی
+    const SPEED_DURATION_MS = 12000;  // ۱۲ ثانیه در حالت سرعتی
+    let QUESTION_DURATION_MS = NORMAL_DURATION_MS;
+    const BASE_CORRECT_POINTS = 100;
+    const MAX_SPEED_BONUS = 100;
+    const STREAK_BONUS = 20;
 
-    let gameMode = "single"; // "single" | "duel"
+    let matchType = "normal"; // "normal" | "speed"
+    let gameMode = "single";  // "single" | "duel"
     let quizQuestions = [];
     let currentIndex = 0;
     let playerScore = 0;
@@ -1914,6 +2062,15 @@ const rawQuestionData = {
     let enemyHP = TOTAL_QUESTIONS;
     let userHistory = [];
     let isAnimating = false;
+
+    // --- Speed Metrics & Timer State ---
+    let currentStreak = 0;
+    let maxStreak = 0;
+    let singleTimerInterval = null;
+    let singleQuestionStartMs = 0;
+    let lastTickSecond = -1;
+    let responseTimesMs = [];
+    let myRoundStartLocalMs = 0;
 
     // --- Online Duel State ---
     let myPlayerId = "";
@@ -2011,12 +2168,123 @@ const rawQuestionData = {
       if (target) target.classList.add("active");
     }
 
+    function stopSingleTimer() {
+      if (singleTimerInterval) {
+        clearInterval(singleTimerInterval);
+        singleTimerInterval = null;
+      }
+      lastTickSecond = -1;
+    }
+
     function stopAllDuelTimers() {
+      stopSingleTimer();
       if (waitPollTimer) { clearInterval(waitPollTimer); waitPollTimer = null; }
       if (waitClockTimer) { clearInterval(waitClockTimer); waitClockTimer = null; }
       if (roomPollTimer) { clearInterval(roomPollTimer); roomPollTimer = null; }
       if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
       isPollingNow = false;
+    }
+
+    function selectMatchMode(mode) {
+      matchType = mode === "speed" ? "speed" : "normal";
+      QUESTION_DURATION_MS = matchType === "speed" ? SPEED_DURATION_MS : NORMAL_DURATION_MS;
+
+      const normalBtn = document.getElementById("modeNormalBtn");
+      const speedBtn = document.getElementById("modeSpeedBtn");
+      const rulesBox = document.getElementById("modeRulesBox");
+      const duelBtn = document.getElementById("startDuelBtn");
+      const singleBtn = document.getElementById("startBtn");
+
+      if (normalBtn) normalBtn.className = "mode-option-btn" + (matchType === "normal" ? " active-normal" : "");
+      if (speedBtn) speedBtn.className = "mode-option-btn" + (matchType === "speed" ? " active-speed" : "");
+
+      if (rulesBox) {
+        if (matchType === "speed") {
+          rulesBox.innerHTML = `
+            <div>⚡ <strong>حالت سرعتی:</strong> زمان هر سؤال فقط ۱۲ ثانیه است! هرچه سریع‌تر درست بزنید ۱۰۰ تا ۲۰۰ امتیاز می‌گیرید.</div>
+            <div>🔥 <strong>زنجیره سرعت:</strong> ۳ پاسخ درست پیاپی +۲۰ امتیاز ویژه دارد و با اتمام زمان حریف شلیک می‌کند.</div>
+          `;
+        } else {
+          rulesBox.innerHTML = `
+            <div>⚔️ <strong>حالت عادی:</strong> هر سؤال ۲۵ ثانیه فرصت دارد و هر پاسخ درست ۱۰۰ امتیاز ثابت می‌دهد.</div>
+            <div>🤝 در دوئل آنلاین فقط با هم‌کلاسی‌هایی که همین حالت را انتخاب کرده‌اند هم‌بازی می‌شوید.</div>
+          `;
+        }
+      }
+
+      if (duelBtn && !duelBtn.disabled) {
+        duelBtn.textContent = matchType === "speed"
+          ? "⚡ شروع دوئل سرعتی آنلاین (دونفره)"
+          : "⚔️ شروع دوئل آنلاین (حالت عادی)";
+      }
+      if (singleBtn) {
+        singleBtn.textContent = matchType === "speed"
+          ? "🏃 مسابقه سرعتی تک‌نفره (۱۲ ثانیه‌ای)"
+          : "🎯 تمرین تک‌نفره (حالت عادی)";
+      }
+
+      try { localStorage.setItem("duel_match_mode", matchType); } catch (e) {}
+    }
+    window.selectMatchMode = selectMatchMode;
+
+    function updateSpeedBarVisibility() {
+      const wrap = document.getElementById("speedBarWrap");
+      if (!wrap) return;
+      wrap.style.display = matchType === "speed" ? "flex" : "none";
+    }
+
+    function calcSpeedPoints(remainingMs, streakCount) {
+      const ratio = Math.max(0, Math.min(1, remainingMs / QUESTION_DURATION_MS));
+      const speedBonus = Math.round(ratio * MAX_SPEED_BONUS);
+      const streakExtra = streakCount >= 3 ? STREAK_BONUS : 0;
+      return {
+        total: BASE_CORRECT_POINTS + speedBonus + streakExtra,
+        speedBonus,
+        streakExtra
+      };
+    }
+
+    function updateSpeedBarUI(remainingMs) {
+      const clamped = Math.max(0, Math.min(QUESTION_DURATION_MS, remainingMs));
+      const pct = (clamped / QUESTION_DURATION_MS) * 100;
+      const secCeil = Math.ceil(clamped / 1000);
+      const potentialBonus = Math.round((clamped / QUESTION_DURATION_MS) * MAX_SPEED_BONUS);
+
+      const fillEl = document.getElementById("speedBarFill");
+      const timeLabel = document.getElementById("speedTimeLabel");
+      const bonusLabel = document.getElementById("speedBonusPreview");
+      const streakEl = document.getElementById("speedStreakBadge");
+
+      if (fillEl) {
+        fillEl.style.width = `${pct.toFixed(1)}%`;
+        fillEl.classList.remove("warn", "danger");
+        if (pct <= 30) fillEl.classList.add("danger");
+        else if (pct <= 60) fillEl.classList.add("warn");
+      }
+      if (timeLabel) {
+        timeLabel.textContent = `⚡ ${toPersianNum(secCeil)} ثانیه`;
+      }
+      if (bonusLabel) {
+        bonusLabel.textContent = `جایزه سرعت: +${toPersianNum(potentialBonus)}`;
+      }
+      if (streakEl) {
+        if (currentStreak >= 2) {
+          streakEl.textContent = `🔥 زنجیره ×${toPersianNum(currentStreak)}`;
+          streakEl.classList.add("show");
+        } else {
+          streakEl.classList.remove("show");
+        }
+      }
+
+      if (secCeil > 0 && secCeil <= 3 && secCeil !== lastTickSecond) {
+        lastTickSecond = secCeil;
+        playTickSound(secCeil === 1);
+      }
+    }
+
+    function formatSecondsFa(ms) {
+      const sec = (ms / 1000).toFixed(1).replace(".", "/");
+      return toPersianNum(sec);
     }
 
     function resetArchersFallState() {
@@ -2079,10 +2347,12 @@ const rawQuestionData = {
 
       if (progressEl) {
         if (!isPlaying) {
-          progressEl.textContent = "آماده نبرد";
-        } else if (gameMode === "duel" && remainingSec !== null) {
-          const urgentClass = remainingSec <= 6 ? " urgent" : "";
-          progressEl.innerHTML = `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))}/${toPersianNum(TOTAL_QUESTIONS)} <span class="hud-timer${urgentClass}">⏱ ${toPersianNum(remainingSec)}</span>`;
+          progressEl.textContent = "آماده نبرد سرعتی";
+        } else if (remainingSec !== null) {
+          const urgentLimit = matchType === "speed" ? 4 : 6;
+          const urgentClass = remainingSec <= urgentLimit ? " urgent" : "";
+          const icon = matchType === "speed" ? "⚡" : "⏱";
+          progressEl.innerHTML = `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))}/${toPersianNum(TOTAL_QUESTIONS)} <span class="hud-timer${urgentClass}">${icon} ${toPersianNum(remainingSec)}</span>`;
         } else {
           progressEl.textContent = `سؤال ${toPersianNum(Math.min(currentIndex + 1, TOTAL_QUESTIONS))} از ${toPersianNum(TOTAL_QUESTIONS)}`;
         }
@@ -2171,6 +2441,7 @@ const rawQuestionData = {
       try {
         const data = await callDuelApi({
           action: "join",
+          mode: matchType,
           playerId: myPlayerId,
           name: myName,
           className: myClass,
@@ -2178,7 +2449,7 @@ const rawQuestionData = {
         });
 
         duelBtn.disabled = false;
-        duelBtn.textContent = "⚔️ شروع دوئل آنلاین (دونفره)";
+        selectMatchMode(matchType);
 
         if (data.status === "matched" && data.room) {
           enterDuelRoom(data.room, data.role, data.serverTime);
@@ -2189,7 +2460,7 @@ const rawQuestionData = {
         }
       } catch (err) {
         duelBtn.disabled = false;
-        duelBtn.textContent = "⚔️ شروع دوئل آنلاین (دونفره)";
+        selectMatchMode(matchType);
         errEl.textContent = "❌ خطا در ارتباط با سرور! اتصال اینترنت را بررسی کنید.";
       }
     }
@@ -2197,6 +2468,8 @@ const rawQuestionData = {
 
     function enterWaitingScreen() {
       document.getElementById("waitPlayerName").textContent = myClass ? `${myName} (${myClass})` : myName;
+      const wmEl = document.getElementById("waitModeText");
+      if (wmEl) wmEl.textContent = matchType === "speed" ? "⚡ مسابقه سرعتی (۱۲ ثانیه‌ای)" : "⚔️ مسابقه عادی (۲۵ ثانیه‌ای)";
       document.getElementById("rightArcherName").textContent = myName;
       document.getElementById("leftArcherName").textContent = "در انتظار...";
       waitStartMs = Date.now();
@@ -2230,7 +2503,7 @@ const rawQuestionData = {
       stopAllDuelTimers();
       try {
         if (myPlayerId && DUEL_API_URL && !DUEL_API_URL.includes("PASTE_YOUR")) {
-          callDuelApi({ action: "cancel_wait", playerId: myPlayerId }).catch(() => {});
+          callDuelApi({ action: "cancel_wait", mode: matchType, playerId: myPlayerId }).catch(() => {});
         }
       } catch (e) {}
       goToHome();
@@ -2240,13 +2513,18 @@ const rawQuestionData = {
     window.addEventListener("beforeunload", () => {
       if (waitPollTimer && myPlayerId && DUEL_API_URL && !DUEL_API_URL.includes("PASTE_YOUR")) {
         try {
-          navigator.sendBeacon(DUEL_API_URL, JSON.stringify({ action: "cancel_wait", playerId: myPlayerId }));
+          navigator.sendBeacon(DUEL_API_URL, JSON.stringify({ action: "cancel_wait", mode: matchType, playerId: myPlayerId }));
         } catch (e) {}
       }
     });
 
     function enterDuelRoom(room, role, serverTime) {
       playStartSound();
+      if (room.mode === "speed" || room.mode === "normal") {
+        matchType = room.mode;
+      }
+      QUESTION_DURATION_MS = room.roundDurationMs || (matchType === "speed" ? SPEED_DURATION_MS : NORMAL_DURATION_MS);
+      updateSpeedBarVisibility();
       duelRoomId = room.roomId;
       myRole = role;
       oppRole = role === "p1" ? "p2" : "p1";
@@ -2270,6 +2548,9 @@ const rawQuestionData = {
       playerHP = me.hp ?? TOTAL_QUESTIONS;
       enemyHP = opp.hp ?? TOTAL_QUESTIONS;
       userHistory = [];
+      responseTimesMs = [];
+      currentStreak = 0;
+      maxStreak = 0;
       lastRenderedRound = -1;
       lastResolvedRound = -1;
       mySelectedForRound = {};
@@ -2279,7 +2560,7 @@ const rawQuestionData = {
       switchScreen("gameScreen");
       syncDuelRoomState(room, serverTime);
 
-      // Start room polling
+      // Start room polling (faster for speed duel)
       roomPollTimer = setInterval(async () => {
         if (isPollingNow || duelFinishedTriggered) return;
         isPollingNow = true;
@@ -2297,16 +2578,20 @@ const rawQuestionData = {
         } finally {
           isPollingNow = false;
         }
-      }, 1600);
+      }, 1200);
 
-      // Smooth 1-second local countdown display synced with server
+      // Smooth 100ms speed bar + countdown synced with server
       countdownTimer = setInterval(() => {
         if (gameMode !== "duel" || duelFinishedTriggered) return;
         const estimatedServerNow = Date.now() + serverTimeOffset;
         const elapsed = estimatedServerNow - currentRoundStartTime;
-        const rem = Math.max(0, Math.ceil((QUESTION_DURATION_MS - elapsed) / 1000));
-        updateScoreUI(true, rem);
-      }, 500);
+        const remMs = Math.max(0, QUESTION_DURATION_MS - elapsed);
+        const remSec = Math.ceil(remMs / 1000);
+        updateScoreUI(true, remSec);
+        if (matchType === "speed" && mySelectedForRound[currentIndex] === undefined) {
+          updateSpeedBarUI(remMs);
+        }
+      }, 100);
     }
 
     function syncDuelRoomState(room, serverTime) {
@@ -2361,9 +2646,13 @@ const rawQuestionData = {
       const item = quizQuestions[roundIdx];
       if (!item) return;
 
+      lastTickSecond = -1;
+      myRoundStartLocalMs = performance.now();
       const estimatedServerNow = Date.now() + serverTimeOffset;
-      const rem = Math.max(0, Math.ceil((QUESTION_DURATION_MS - (estimatedServerNow - currentRoundStartTime)) / 1000));
+      const remMs = Math.max(0, QUESTION_DURATION_MS - (estimatedServerNow - currentRoundStartTime));
+      const rem = Math.ceil(remMs / 1000);
       updateScoreUI(true, rem);
+      if (matchType === "speed") updateSpeedBarUI(remMs);
 
       const questionTextEl = document.getElementById("questionText");
       const optionsContainer = document.getElementById("optionsContainer");
@@ -2398,6 +2687,16 @@ const rawQuestionData = {
 
       const item = quizQuestions[roundIdx];
       const isCorrect = selectedIndex === item.a;
+      const responseTimeMs = Math.min(QUESTION_DURATION_MS, Math.max(200, Math.round(performance.now() - myRoundStartLocalMs)));
+      const remainingMs = Math.max(0, QUESTION_DURATION_MS - responseTimeMs);
+      responseTimesMs.push(responseTimeMs);
+
+      const nextStreak = isCorrect ? currentStreak + 1 : 0;
+      const ptsInfo = !isCorrect
+        ? { total: 0, speedBonus: 0, streakExtra: 0 }
+        : (matchType === "speed"
+            ? calcSpeedPoints(remainingMs, nextStreak)
+            : { total: BASE_CORRECT_POINTS, speedBonus: 0, streakExtra: 0 });
 
       const buttons = document.querySelectorAll("#optionsContainer .option-btn");
       buttons.forEach((btn) => {
@@ -2409,7 +2708,7 @@ const rawQuestionData = {
 
       const feedback = document.getElementById("feedbackBanner");
       feedback.className = "feedback-banner show feedback-wait";
-      feedback.textContent = `✅ پاسخ شما ثبت شد! ⏳ در انتظار پاسخ ${oppName}...`;
+      feedback.textContent = `⚡ ثبت شد (${formatSecondsFa(responseTimeMs)} ثانیه)! ⏳ در انتظار ${oppName}...`;
 
       try {
         const data = await callDuelApi({
@@ -2418,7 +2717,9 @@ const rawQuestionData = {
           playerId: myPlayerId,
           round: roundIdx,
           selected: selectedIndex,
-          isCorrect: isCorrect
+          isCorrect: isCorrect,
+          responseTimeMs: responseTimeMs,
+          speedPoints: ptsInfo.total
         });
         if (data.status === "ok" && data.room) {
           syncDuelRoomState(data.room, data.serverTime);
@@ -2436,6 +2737,16 @@ const rawQuestionData = {
       const myCorrect = myRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
       const oppCorrect = oppRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
       const mySel = myRole === "p1" ? outcome.p1Selected : outcome.p2Selected;
+      const myTimeMs = myRole === "p1" ? outcome.p1TimeMs : outcome.p2TimeMs;
+      const oppTimeMs = oppRole === "p1" ? outcome.p1TimeMs : outcome.p2TimeMs;
+      const myEarnedPts = myRole === "p1" ? (outcome.p1Points || (myCorrect ? 100 : 0)) : (outcome.p2Points || (myCorrect ? 100 : 0));
+
+      if (myCorrect) {
+        currentStreak++;
+        if (currentStreak > maxStreak) maxStreak = currentStreak;
+      } else {
+        currentStreak = 0;
+      }
 
       // Save history
       userHistory.push({
@@ -2443,7 +2754,9 @@ const rawQuestionData = {
         userAnswer: mySel >= 0 ? item.o[mySel] : "بدون پاسخ (پایان زمان)",
         correctAnswer: item.o[item.a],
         isCorrect: myCorrect,
-        explanation: item.exp
+        explanation: item.exp,
+        timeMs: myTimeMs || null,
+        points: myEarnedPts
       });
 
       // Highlight options if still showing this round
@@ -2461,18 +2774,23 @@ const rawQuestionData = {
         });
 
         const feedback = document.getElementById("feedbackBanner");
+        const ptsText = `+${toPersianNum(myEarnedPts)} امتیاز`;
         if (myCorrect && !oppCorrect) {
           feedback.className = "feedback-banner show feedback-ok";
-          feedback.textContent = `🎯 شلیک دقیق! شما درست زدید (+۱۰۰) و ${oppName} اشتباه کرد — ${item.exp}`;
+          feedback.textContent = `⚡ شلیک سریع! (${ptsText}) ${oppName} اشتباه کرد — ${item.exp}`;
         } else if (myCorrect && oppCorrect) {
+          let fasterNote = "";
+          if (myTimeMs && oppTimeMs) {
+            fasterNote = myTimeMs < oppTimeMs ? " 🏆 شما سریع‌تر بودید!" : (oppTimeMs < myTimeMs ? ` ⚡ ${oppName} سریع‌تر زد!` : "");
+          }
           feedback.className = "feedback-banner show feedback-ok";
-          feedback.textContent = `⚔️ تبادل تیر! هر دو درست پاسخ دادید (+۱۰۰) — ${item.exp}`;
+          feedback.textContent = `⚔️ هر دو درست زدید (${ptsText})${fasterNote} — ${item.exp}`;
         } else if (!myCorrect && oppCorrect) {
           feedback.className = "feedback-banner show feedback-err";
-          feedback.textContent = `🛡️ ${oppName} به شما شلیک کرد! پاسخ صحیح: «${item.o[item.a]}» — ${item.exp}`;
+          feedback.textContent = `🛡️ ${oppName} شلیک کرد! پاسخ صحیح: «${item.o[item.a]}» — ${item.exp}`;
         } else {
           feedback.className = "feedback-banner show feedback-err";
-          feedback.textContent = `❄️ هیچ‌کدام درست نزدید! صحیح: «${item.o[item.a]}» — ${item.exp}`;
+          feedback.textContent = `⏱ هیچ‌کدام درست نزدید! صحیح: «${item.o[item.a]}» — ${item.exp}`;
         }
       }
 
@@ -2508,8 +2826,11 @@ const rawQuestionData = {
 
       const me = room[myRole];
       const opp = room[oppRole];
-      const myCorrectCount = Math.round((me.score || 0) / 100);
-      const oppCorrectCount = Math.round((opp.score || 0) / 100);
+      const myCorrectCount = userHistory.filter(rec => rec.isCorrect).length;
+      const oppCorrectCount = opp.correctCount !== undefined ? opp.correctCount : Math.max(0, TOTAL_QUESTIONS - (me.hp ?? 0));
+      const avgTimeMs = responseTimesMs.length > 0
+        ? Math.round(responseTimesMs.reduce((a, b) => a + b, 0) / responseTimesMs.length)
+        : 0;
 
       let titleText = "🤝 دوئل مساوی شد!";
       let subText = "هر دو کماندار عملکردی برابر داشتند!";
@@ -2537,6 +2858,7 @@ const rawQuestionData = {
           <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
             <div style="font-weight:800; margin-bottom:3px;">
               ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
+              ${rec.timeMs ? `<span style="font-size:11px; color:#0369a1; margin-right:6px;">⚡ ${formatSecondsFa(rec.timeMs)} ثانیه</span>` : ""}
             </div>
             <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
             <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
@@ -2558,6 +2880,8 @@ const rawQuestionData = {
             <div class="score-pill" style="background:rgba(0,119,182,0.45); border:1px solid #90e0ef;">
               🎯 ${opp.name}: ${toPersianNum(opp.score)} امتیاز (${toPersianNum(oppCorrectCount)} درست)
             </div>
+            ${avgTimeMs > 0 ? `<div class="score-pill" style="background:rgba(16,185,129,0.35); border:1px solid #6ee7b7;">⚡ میانگین سرعت: ${formatSecondsFa(avgTimeMs)} ثانیه</div>` : ""}
+            ${maxStreak >= 2 ? `<div class="score-pill" style="background:rgba(245,158,11,0.35); border:1px solid #fcd34d;">🔥 بهترین زنجیره: ${toPersianNum(maxStreak)}</div>` : ""}
           </div>
 
           <div class="end-actions">
@@ -2604,20 +2928,44 @@ const rawQuestionData = {
       playerHP = TOTAL_QUESTIONS;
       enemyHP = TOTAL_QUESTIONS;
       userHistory = [];
+      responseTimesMs = [];
+      currentStreak = 0;
+      maxStreak = 0;
       isAnimating = false;
 
-      updateScoreUI(true);
+      QUESTION_DURATION_MS = matchType === "speed" ? SPEED_DURATION_MS : NORMAL_DURATION_MS;
+      updateSpeedBarVisibility();
+      updateScoreUI(true, matchType === "speed" ? Math.ceil(QUESTION_DURATION_MS / 1000) : null);
       switchScreen("gameScreen");
       renderSingleQuestion();
     }
     window.startSinglePlayer = startSinglePlayer;
+
+    function startSingleQuestionTimer() {
+      stopSingleTimer();
+      singleQuestionStartMs = performance.now();
+      updateSpeedBarUI(QUESTION_DURATION_MS);
+      updateScoreUI(true, Math.ceil(QUESTION_DURATION_MS / 1000));
+
+      singleTimerInterval = setInterval(() => {
+        if (gameMode !== "single" || isAnimating) return;
+        const elapsed = performance.now() - singleQuestionStartMs;
+        const remMs = Math.max(0, QUESTION_DURATION_MS - elapsed);
+        updateSpeedBarUI(remMs);
+        updateScoreUI(true, Math.ceil(remMs / 1000));
+
+        if (remMs <= 0) {
+          stopSingleTimer();
+          handleSingleAnswer(-1); // پایان زمان (Timeout)
+        }
+      }, 100);
+    }
 
     function renderSingleQuestion() {
       if (!verifyFooterIntegrity()) return;
       const item = quizQuestions[currentIndex];
       if (!item) return;
 
-      updateScoreUI(true);
       const questionTextEl = document.getElementById("questionText");
       const optionsContainer = document.getElementById("optionsContainer");
       const feedbackBanner = document.getElementById("feedbackBanner");
@@ -2642,38 +2990,77 @@ const rawQuestionData = {
         btn.addEventListener("click", () => handleSingleAnswer(optObj.originalIdx));
         optionsContainer.appendChild(btn);
       });
+
+      if (matchType === "speed") {
+        startSingleQuestionTimer();
+      } else {
+        stopSingleTimer();
+        singleQuestionStartMs = performance.now();
+        updateScoreUI(true, null);
+      }
     }
 
     function handleSingleAnswer(selectedIndex) {
       if (!verifyFooterIntegrity() || isAnimating) return;
       isAnimating = true;
+      stopSingleTimer();
 
       const item = quizQuestions[currentIndex];
       if (!item) { isAnimating = false; return; }
 
-      const isCorrect = selectedIndex === item.a;
+      const isTimeout = selectedIndex < 0;
+      const isCorrect = !isTimeout && selectedIndex === item.a;
       const isLastQuestion = currentIndex === TOTAL_QUESTIONS - 1;
+
+      const responseTimeMs = isTimeout
+        ? QUESTION_DURATION_MS
+        : Math.min(QUESTION_DURATION_MS, Math.max(200, Math.round(performance.now() - singleQuestionStartMs)));
+      const remainingMs = Math.max(0, QUESTION_DURATION_MS - responseTimeMs);
+      if (!isTimeout) responseTimesMs.push(responseTimeMs);
+
+      let earnedPoints = 0;
+      let ptsInfo = { total: 0, speedBonus: 0, streakExtra: 0 };
+      if (isCorrect) {
+        currentStreak++;
+        if (currentStreak > maxStreak) maxStreak = currentStreak;
+        ptsInfo = matchType === "speed"
+          ? calcSpeedPoints(remainingMs, currentStreak)
+          : { total: BASE_CORRECT_POINTS, speedBonus: 0, streakExtra: 0 };
+        earnedPoints = ptsInfo.total;
+      } else {
+        currentStreak = 0;
+      }
 
       const buttons = document.querySelectorAll("#optionsContainer .option-btn");
       buttons.forEach((btn) => {
         const btnIdx = Number(btn.dataset.idx);
         btn.disabled = true;
         if (btnIdx === item.a) btn.classList.add("correct-ans");
-        else if (btnIdx === selectedIndex && !isCorrect) btn.classList.add("wrong-ans");
+        else if (!isTimeout && btnIdx === selectedIndex && !isCorrect) btn.classList.add("wrong-ans");
       });
 
       userHistory.push({
         question: item.q,
-        userAnswer: item.o[selectedIndex],
+        userAnswer: isTimeout ? "پایان زمان (۱۲ ثانیه)" : item.o[selectedIndex],
         correctAnswer: item.o[item.a],
         isCorrect: isCorrect,
-        explanation: item.exp
+        explanation: item.exp,
+        timeMs: responseTimeMs,
+        points: earnedPoints
       });
 
       const feedback = document.getElementById("feedbackBanner");
       if (isCorrect) {
         feedback.className = "feedback-banner show feedback-ok";
-        feedback.textContent = `آفرین! پاسخ درست است (+۱۰۰ امتیاز) — ${item.exp}`;
+        if (matchType === "speed") {
+          const streakTxt = ptsInfo.streakExtra > 0 ? ` +🔥${toPersianNum(ptsInfo.streakExtra)} کمبو` : "";
+          feedback.textContent = `⚡ عالی! (+${toPersianNum(earnedPoints)} امتیاز | ${formatSecondsFa(responseTimeMs)} ثانیه${streakTxt}) — ${item.exp}`;
+        } else {
+          feedback.textContent = `آفرین! پاسخ درست است (+۱۰۰ امتیاز) — ${item.exp}`;
+        }
+      } else if (isTimeout) {
+        feedback.className = "feedback-banner show feedback-err";
+        feedback.textContent = `⏱ زمان تمام شد! صحیح: «${item.o[item.a]}» — ${item.exp}`;
       } else {
         feedback.className = "feedback-banner show feedback-err";
         feedback.textContent = `پاسخ نادرست! صحیح: «${item.o[item.a]}» — ${item.exp}`;
@@ -2681,15 +3068,15 @@ const rawQuestionData = {
 
       fireArrow(isCorrect, () => {
         if (isCorrect) {
-          playerScore += 100;
+          playerScore += earnedPoints;
           enemyHP = Math.max(0, enemyHP - 1);
         } else {
           enemyHits++;
           playerHP = Math.max(0, playerHP - 1);
         }
-        updateScoreUI(true);
+        updateScoreUI(true, matchType === "speed" ? Math.ceil(remainingMs / 1000) : null);
 
-        const playerHitsCount = playerScore / 100;
+        const playerHitsCount = userHistory.filter(r => r.isCorrect).length;
         let shouldFall = false;
         if (isLastQuestion) {
           if (playerHitsCount > enemyHits) {
@@ -2708,7 +3095,7 @@ const rawQuestionData = {
           if (currentIndex >= TOTAL_QUESTIONS) finishSingleGame();
           else renderSingleQuestion();
         }, shouldFall ? 2000 : 420);
-      });
+      }, isCorrect ? `+${toPersianNum(earnedPoints)} ⚡` : (isTimeout ? "پایان زمان! ⏱" : "پاسخ اشتباه!"));
     }
 
     function finishSingleGame() {
@@ -2719,9 +3106,14 @@ const rawQuestionData = {
 
       const correctCount = userHistory.filter(rec => rec.isCorrect).length;
       const accuracyPercent = (correctCount / TOTAL_QUESTIONS) * 100;
-      const isWinner = playerScore >= Math.ceil(TOTAL_QUESTIONS / 2) * 100;
+      const isWinner = correctCount >= Math.ceil(TOTAL_QUESTIONS / 2);
       playEndSound(isWinner);
       if (accuracyPercent >= 80) runConfettiCelebration(2800);
+
+      const avgTimeMs = responseTimesMs.length > 0
+        ? Math.round(responseTimesMs.reduce((a, b) => a + b, 0) / responseTimesMs.length)
+        : QUESTION_DURATION_MS;
+      const fastestMs = responseTimesMs.length > 0 ? Math.min(...responseTimesMs) : 0;
 
       const endEl = document.getElementById("endScreen");
       endEl.scrollTop = 0;
@@ -2736,6 +3128,7 @@ const rawQuestionData = {
           <div class="analysis-item ${rec.isCorrect ? "" : "is-wrong"}">
             <div style="font-weight:800; margin-bottom:3px;">
               ${toPersianNum(idx + 1)}. <span>${rec.question}</span> ${rec.isCorrect ? "✅" : "❌"}
+              <span style="font-size:11px; color:#0369a1; margin-right:6px;">⚡ ${formatSecondsFa(rec.timeMs || QUESTION_DURATION_MS)} ثانیه</span>
             </div>
             <div>پاسخ شما: <strong>${rec.userAnswer}</strong> | صحیح: <strong style="color:#1b8a4b;">${rec.correctAnswer}</strong></div>
             <div style="color:#334155; font-size:11.5px; margin-top:2px;">💡 ${rec.explanation}</div>
@@ -2745,17 +3138,19 @@ const rawQuestionData = {
 
       endEl.innerHTML = `
         <div class="end-summary">
-          <h2 class="game-title">${isWinner ? "🏆 موفقیت در یادگیری زبان عربی!" : "❄️ پایان آزمون زبان عربی"}</h2>
+          <h2 class="game-title">${isWinner ? "🏆 پیروزی در مسابقه سرعتی عربی!" : "⚡ پایان مسابقه سرعتی"}</h2>
           <p style="color:#cdebf7; font-size:12.5px;">
-            ${isWinner ? "آفرین! عملکرد شما قابل تحسین است." : "تلاش خوبی بود! با مرور توضیحات زیر دوباره آزمون را امتحان کنید."}
+            ${isWinner ? "آفرین! هم دقیق بودید و هم سریع." : "تلاش خوبی بود! با مرور نکات زیر رکورد سرعتتان را بشکنید."}
           </p>
           <div class="score-grid">
             <div class="score-pill" style="background:rgba(27,138,75,0.4); border:1px solid #69f0ae;">
-              🎯 امتیاز شما: ${toPersianNum(playerScore)} از ${toPersianNum(TOTAL_QUESTIONS * 100)}
+              ⚡ امتیاز سرعتی: ${toPersianNum(playerScore)} (${toPersianNum(correctCount)} درست)
             </div>
             <div class="score-pill" style="background:rgba(0,119,182,0.4); border:1px solid #90e0ef;">
-              🏹 ضربه حریف: ${toPersianNum(enemyHits)}
+              ⏱ میانگین سرعت: ${formatSecondsFa(avgTimeMs)} ثانیه
             </div>
+            ${fastestMs > 0 ? `<div class="score-pill" style="background:rgba(16,185,129,0.35); border:1px solid #6ee7b7;">🚀 سریع‌ترین: ${formatSecondsFa(fastestMs)} ثانیه</div>` : ""}
+            ${maxStreak >= 2 ? `<div class="score-pill" style="background:rgba(245,158,11,0.35); border:1px solid #fcd34d;">🔥 زنجیره: ${toPersianNum(maxStreak)}</div>` : ""}
           </div>
           <div class="end-actions">
             <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
@@ -2774,7 +3169,7 @@ const rawQuestionData = {
     // =========================================================================
     // ARROW ANIMATION ENGINE
     // =========================================================================
-    function fireArrow(fromRightToLeft, onImpact) {
+    function fireArrow(fromRightToLeft, onImpact, customLabel = null) {
       playBowSound();
 
       const rightSvg = document.getElementById("rightArcherSvg");
@@ -2896,9 +3291,9 @@ const rawQuestionData = {
           playHitSound(fromRightToLeft);
 
           if (fromRightToLeft) {
-            triggerTargetHit("leftArcherBox", endX, endY, "#e63946", "+۱۰۰ امتیاز");
+            triggerTargetHit("leftArcherBox", endX, endY, "#e63946", customLabel || "+۱۰۰ ⚡");
           } else {
-            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", gameMode === "duel" ? "شلیک حریف!" : "پاسخ اشتباه!");
+            triggerTargetHit("rightArcherBox", endX, endY, "#0077b6", customLabel || (gameMode === "duel" ? "شلیک حریف!" : "پاسخ اشتباه!"));
           }
 
           if (onImpact) onImpact();
@@ -2959,6 +3354,8 @@ const rawQuestionData = {
         const savedClass = localStorage.getItem("duel_student_class");
         if (savedName) document.getElementById("studentNameInput").value = savedName;
         if (savedClass) document.getElementById("studentClassInput").value = savedClass;
+        const savedMode = localStorage.getItem("duel_match_mode");
+        if (savedMode === "speed" || savedMode === "normal") selectMatchMode(savedMode);
       } catch (e) {}
     }
 
