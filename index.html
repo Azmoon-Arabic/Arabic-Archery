@@ -2071,6 +2071,7 @@ const rawQuestionData = {
     let lastTickSecond = -1;
     let responseTimesMs = [];
     let myRoundStartLocalMs = 0;
+    let singleExamStartMs = 0;
 
     // --- Online Duel State ---
     let myPlayerId = "";
@@ -2280,6 +2281,54 @@ const rawQuestionData = {
         lastTickSecond = secCeil;
         playTickSound(secCeil === 1);
       }
+    }
+
+    function formatIranClock(ms) {
+      try {
+        return new Date(ms).toLocaleTimeString("fa-IR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false
+        });
+      } catch (e) {
+        return "—";
+      }
+    }
+
+    function formatDurationFa(durationMs) {
+      const totalSec = Math.max(1, Math.round(durationMs / 1000));
+      const mins = Math.floor(totalSec / 60);
+      const secs = totalSec % 60;
+      if (mins > 0) return `${toPersianNum(mins)} دقیقه و ${toPersianNum(secs)} ثانیه`;
+      return `${toPersianNum(secs)} ثانیه`;
+    }
+
+    function validateAndSaveStudentInfo() {
+      const errEl = document.getElementById("formErrorText");
+      const nameInput = document.getElementById("studentNameInput");
+      const classInput = document.getElementById("studentClassInput");
+      if (errEl) errEl.textContent = "";
+
+      myName = (nameInput ? nameInput.value : "").trim();
+      myClass = (classInput ? classInput.value : "").trim();
+
+      if (myName.length < 2) {
+        if (errEl) errEl.textContent = "لطفاً ابتدا نام و نام خانوادگی خود را وارد کنید.";
+        if (nameInput) nameInput.focus();
+        return false;
+      }
+      if (!myClass) {
+        if (errEl) errEl.textContent = "لطفاً شعبه کلاس خود را از لیست انتخاب کنید.";
+        if (classInput) classInput.focus();
+        return false;
+      }
+
+      try {
+        localStorage.setItem("duel_student_name", myName);
+        localStorage.setItem("duel_student_class", myClass);
+      } catch (e) {}
+      return true;
     }
 
     function formatSecondsFa(ms) {
@@ -2884,6 +2933,8 @@ const rawQuestionData = {
             ${maxStreak >= 2 ? `<div class="score-pill" style="background:rgba(245,158,11,0.35); border:1px solid #fcd34d;">🔥 بهترین زنجیره: ${toPersianNum(maxStreak)}</div>` : ""}
           </div>
 
+          ${room.startedAt ? `<div style="font-size:11.5px; color:#86efac; margin:4px 0; font-weight:700;">✅ کارنامه با ساعت شروع (${formatIranClock(room.startedAt)}) و پایان در جدول معلم ثبت شد.</div>` : ""}
+
           <div class="end-actions">
             <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
               📝 نمره شما: ${formattedGrade} از ۲۰
@@ -2904,8 +2955,10 @@ const rawQuestionData = {
     // =========================================================================
     function startSinglePlayer() {
       if (!verifyFooterIntegrity()) return;
+      if (!validateAndSaveStudentInfo()) return;
       stopAllDuelTimers();
       gameMode = "single";
+      singleExamStartMs = Date.now();
 
       const ctx = getAudioCtx();
       if (ctx && ctx.state === "suspended") {
@@ -2917,7 +2970,7 @@ const rawQuestionData = {
       startSnowLoop();
       resetArchersFallState();
 
-      document.getElementById("rightArcherName").textContent = "شما";
+      document.getElementById("rightArcherName").textContent = myName || "شما";
       document.getElementById("leftArcherName").textContent = "حریف";
 
       quizQuestions = shuffleArray(questionBank).slice(0, TOTAL_QUESTIONS);
@@ -3152,6 +3205,12 @@ const rawQuestionData = {
             ${fastestMs > 0 ? `<div class="score-pill" style="background:rgba(16,185,129,0.35); border:1px solid #6ee7b7;">🚀 سریع‌ترین: ${formatSecondsFa(fastestMs)} ثانیه</div>` : ""}
             ${maxStreak >= 2 ? `<div class="score-pill" style="background:rgba(245,158,11,0.35); border:1px solid #fcd34d;">🔥 زنجیره: ${toPersianNum(maxStreak)}</div>` : ""}
           </div>
+          <div class="score-grid" style="margin-top:4px;">
+            <div class="score-pill" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.28); font-size:11.5px;">
+              👤 ${myName} (${myClass}) | 🕒 شروع: ${formatIranClock(singleExamStartMs)} | ⏱ مدت: ${formatDurationFa(Date.now() - singleExamStartMs)}
+            </div>
+          </div>
+          <div id="singleSaveStatus" style="font-size:11.5px; color:#bae6fd; margin:4px 0; font-weight:700;">☁️ در حال ثبت کارنامه در سیستم معلم...</div>
           <div class="end-actions">
             <div class="score-pill" style="background:rgba(245, 158, 11, 0.28); border:1px solid #fcd34d; color:#fef08a;">
               📝 نمره آزمون شما: ${formattedGrade} از ۲۰
@@ -3164,6 +3223,40 @@ const rawQuestionData = {
           ${analysisHTML}
         </div>
       `;
+
+      // ثبت خودکار نتیجه آزمون تک‌نفره در گوگل شیت
+      if (DUEL_API_URL && !DUEL_API_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT")) {
+        const finishedAtMs = Date.now();
+        callDuelApi({
+          action: "save_single",
+          name: myName,
+          className: myClass,
+          mode: matchType,
+          score: playerScore,
+          correctCount: correctCount,
+          wrongCount: TOTAL_QUESTIONS - correctCount,
+          totalQuestions: TOTAL_QUESTIONS,
+          grade20: scoreOutOf20,
+          avgTimeSec: +(avgTimeMs / 1000).toFixed(1),
+          maxStreak: maxStreak,
+          startedAt: singleExamStartMs,
+          finishedAt: finishedAtMs
+        }).then(res => {
+          const st = document.getElementById("singleSaveStatus");
+          if (st) {
+            st.style.color = "#86efac";
+            st.textContent = (res && res.status === "ok")
+              ? "✅ مشخصات و کارنامه شما با ساعت شروع و پایان ثبت شد."
+              : "⚠️ خطا در ثبت خودکار کارنامه روی سرور.";
+          }
+        }).catch(() => {
+          const st = document.getElementById("singleSaveStatus");
+          if (st) {
+            st.style.color = "#fda4af";
+            st.textContent = "⚠️ کارنامه ثبت نشد (اتصال اینترنت را بررسی کنید).";
+          }
+        });
+      }
     }
 
     // =========================================================================
