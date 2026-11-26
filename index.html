@@ -2092,6 +2092,7 @@ const rawQuestionData = {
     let lastRenderedRound = -1;
     let lastResolvedRound = -1;
     let mySelectedForRound = {}; // round -> selectedIdx
+    let myArrowFiredForRound = {}; // round -> boolean
     let duelFinishedTriggered = false;
     let currentRoundStartTime = 0;
     let pendingRoundRenderTimer = null;
@@ -2204,12 +2205,12 @@ const rawQuestionData = {
       if (rulesBox) {
         if (matchType === "speed") {
           rulesBox.innerHTML = `
-            <div>⚡ <strong>حالت سرعتی:</strong> زمان هر سؤال فقط ۱۲ ثانیه است! هرچه سریع‌تر درست بزنید ۱۰۰ تا ۲۰۰ امتیاز می‌گیرید.</div>
-            <div>🔥 <strong>زنجیره سرعت:</strong> ۳ پاسخ درست پیاپی +۲۰ امتیاز ویژه دارد و با اتمام زمان حریف شلیک می‌کند.</div>
+            <div>⚡ <strong>حالت سرعتی (۱۲ ثانیه):</strong> هر کس زودتر گزینه صحیح را بزند، همان لحظه امتیاز می‌گیرد، تیر شلیک می‌شود و سؤال بعدی می‌آید!</div>
+            <div>🔥 <strong>پاداش سرعت و کمبو:</strong> پاسخ سریع‌تر امتیاز بیشتر (۱۰۰ تا ۲۰۰) و ۳ پاسخ درست پیاپی +۲۰ امتیاز ویژه دارد.</div>
           `;
         } else {
           rulesBox.innerHTML = `
-            <div>⚔️ <strong>حالت عادی:</strong> هر سؤال ۲۵ ثانیه فرصت دارد و هر پاسخ درست ۱۰۰ امتیاز ثابت می‌دهد.</div>
+            <div>⚔️ <strong>حالت عادی (۲۵ ثانیه):</strong> هر پاسخ درست ۱۰۰ امتیاز دارد و به محض پاسخ دادن هر دو نفر، بلافاصله سؤال بعدی نمایش داده می‌شود.</div>
             <div>🤝 در دوئل آنلاین فقط با هم‌کلاسی‌هایی که همین حالت را انتخاب کرده‌اند هم‌بازی می‌شوید.</div>
           `;
         }
@@ -2605,6 +2606,7 @@ const rawQuestionData = {
       lastRenderedRound = -1;
       lastResolvedRound = -1;
       mySelectedForRound = {};
+      myArrowFiredForRound = {};
       duelFinishedTriggered = false;
 
       resetArchersFallState();
@@ -2629,11 +2631,11 @@ const rawQuestionData = {
         } finally {
           isPollingNow = false;
         }
-      }, 1200);
+      }, 800);
 
       // Smooth 100ms speed bar + countdown synced with server
       countdownTimer = setInterval(() => {
-        if (gameMode !== "duel" || duelFinishedTriggered) return;
+        if (gameMode !== "duel" || duelFinishedTriggered || pendingRoundRenderTimer) return;
         const estimatedServerNow = Date.now() + serverTimeOffset;
         const elapsed = estimatedServerNow - currentRoundStartTime;
         const remMs = Math.max(0, QUESTION_DURATION_MS - elapsed);
@@ -2702,7 +2704,7 @@ const rawQuestionData = {
           pendingRoundRenderTimer = null;
         }
 
-        const renderDelay = justResolved ? 1150 : 0;
+        const renderDelay = justResolved ? 900 : 0;
         if (renderDelay > 0) {
           pendingRoundRenderTimer = setTimeout(() => {
             pendingRoundRenderTimer = null;
@@ -2787,6 +2789,14 @@ const rawQuestionData = {
       feedback.className = "feedback-banner show feedback-wait";
       feedback.textContent = `⚡ ثبت شد (${formatSecondsFa(responseTimeMs)} ثانیه)! ⏳ در انتظار ${oppName}...`;
 
+      // در حالت عادی شلیک فوری روی پاسخ درست؛ در حالت سرعتی سرور بلافاصله تأیید می‌کند چه کسی زودتر زده است
+      if (isCorrect && matchType !== "speed") {
+        myArrowFiredForRound[roundIdx] = true;
+        fireArrow(true, null, "+۱۰۰ امتیاز");
+      } else if (isCorrect && matchType === "speed") {
+        feedback.textContent = `⚡ پاسخ صحیح ثبت شد (${formatSecondsFa(responseTimeMs)} ثانیه)! در حال بررسی سرعت...`;
+      }
+
       try {
         const data = await callDuelApi({
           action: "answer",
@@ -2811,8 +2821,13 @@ const rawQuestionData = {
       const item = quizQuestions[r];
       if (!item) return;
 
-      const myCorrect = myRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
-      const oppCorrect = oppRole === "p1" ? outcome.p1Correct : outcome.p2Correct;
+      const speedWinner = outcome.speedWinner || null;
+      const myCorrect = matchType === "speed" && speedWinner
+        ? (speedWinner === myRole)
+        : (myRole === "p1" ? outcome.p1Correct : outcome.p2Correct);
+      const oppCorrect = matchType === "speed" && speedWinner
+        ? (speedWinner === oppRole)
+        : (oppRole === "p1" ? outcome.p1Correct : outcome.p2Correct);
       const mySel = myRole === "p1" ? outcome.p1Selected : outcome.p2Selected;
       const myTimeMs = myRole === "p1" ? outcome.p1TimeMs : outcome.p2TimeMs;
       const oppTimeMs = oppRole === "p1" ? outcome.p1TimeMs : outcome.p2TimeMs;
@@ -2852,16 +2867,18 @@ const rawQuestionData = {
 
         const feedback = document.getElementById("feedbackBanner");
         const ptsText = `+${toPersianNum(myEarnedPts)} امتیاز`;
-        if (myCorrect && !oppCorrect) {
+        if (matchType === "speed" && speedWinner === myRole) {
           feedback.className = "feedback-banner show feedback-ok";
-          feedback.textContent = `⚡ شلیک سریع! (${ptsText}) ${oppName} اشتباه کرد — ${item.exp}`;
+          feedback.textContent = `⚡ آفرین! زودتر از ${oppName} درست زدید (${ptsText}) — ${item.exp}`;
+        } else if (matchType === "speed" && speedWinner === oppRole) {
+          feedback.className = "feedback-banner show feedback-err";
+          feedback.textContent = `⚡ ${oppName} زودتر گزینه صحیح را زد و شلیک کرد! صحیح: «${item.o[item.a]}» — ${item.exp}`;
+        } else if (myCorrect && !oppCorrect) {
+          feedback.className = "feedback-banner show feedback-ok";
+          feedback.textContent = `🎯 شلیک دقیق! (${ptsText}) ${oppName} اشتباه کرد — ${item.exp}`;
         } else if (myCorrect && oppCorrect) {
-          let fasterNote = "";
-          if (myTimeMs && oppTimeMs) {
-            fasterNote = myTimeMs < oppTimeMs ? " 🏆 شما سریع‌تر بودید!" : (oppTimeMs < myTimeMs ? ` ⚡ ${oppName} سریع‌تر زد!` : "");
-          }
           feedback.className = "feedback-banner show feedback-ok";
-          feedback.textContent = `⚔️ هر دو درست زدید (${ptsText})${fasterNote} — ${item.exp}`;
+          feedback.textContent = `⚔️ هر دو درست زدید (${ptsText}) — ${item.exp}`;
         } else if (!myCorrect && oppCorrect) {
           feedback.className = "feedback-banner show feedback-err";
           feedback.textContent = `🛡️ ${oppName} شلیک کرد! پاسخ صحیح: «${item.o[item.a]}» — ${item.exp}`;
@@ -2883,15 +2900,17 @@ const rawQuestionData = {
       };
 
       const myHitLabel = matchType === "speed" ? `+${toPersianNum(myEarnedPts)} ⚡` : "+۱۰۰ امتیاز";
-      if (myCorrect && oppCorrect) {
+      const alreadyFiredMine = !!myArrowFiredForRound[r];
+
+      if (myCorrect && !alreadyFiredMine && oppCorrect) {
         fireArrow(true, null, myHitLabel);
         fireArrow(false, applyScores, "شلیک حریف!");
-      } else if (myCorrect) {
+      } else if (myCorrect && !alreadyFiredMine) {
         fireArrow(true, applyScores, myHitLabel);
       } else if (oppCorrect) {
         fireArrow(false, applyScores, "شلیک حریف!");
       } else {
-        playHitSound(false);
+        if (!myCorrect) playHitSound(false);
         applyScores();
       }
     }
